@@ -17,7 +17,7 @@ public class MM_TeleOp extends LinearOpMode {
     private Servo armServo;
     private Servo servo;
 
-    public void runOpMode(){
+    public void runOpMode() {
         robot.init();
         initial();
 
