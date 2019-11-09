@@ -15,6 +15,6 @@ public class MM_Robot {
     }
 
     public void driveWithSticks() {
-        drivetrain.driveWithSticks(-opMode.gamepad1.left_stick_y,-opMode.gamepad1.right_stick_y);
+        drivetrain.driveWithSticks();
     }
 }

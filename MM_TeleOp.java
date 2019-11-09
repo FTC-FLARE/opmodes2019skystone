@@ -10,12 +10,15 @@ import com.qualcomm.robotcore.hardware.Servo;
 public class MM_TeleOp extends LinearOpMode {
     private MM_Robot robot = new MM_Robot(this);
 
-    private CRServo flyWheelServo1;
-    private CRServo flyWheelServo2;
     private DcMotor flyWheel1 = null;
     private DcMotor flyWheel2 = null;
+    private DcMotor armMotor = null;
+    private Servo gripperServo;
     private Servo armServo;
     private Servo servo;
+    private CRServo testServo;
+    private boolean isHandled = false;
+    private boolean isOpen = true;
 
     public void runOpMode() {
         robot.init();
@@ -26,8 +29,11 @@ public class MM_TeleOp extends LinearOpMode {
         while (opModeIsActive()) {
             robot.driveWithSticks();
             runFlyWheels();
-            openServo(gamepad1.a);
-            moveServoArm(gamepad1.b);
+            moveFoundationServo();
+            toggleGripper();
+            moveServo();
+            rotateGripperWrist(gamepad2.b);
+            armMove(-gamepad2.left_stick_y);
         }
     }
 
@@ -35,30 +41,50 @@ public class MM_TeleOp extends LinearOpMode {
         if (gamepad1.left_bumper){
             flyWheel1.setPower(1);
             flyWheel2.setPower(1);
-            flyWheelServo1.setPower(.75);
-            flyWheelServo2.setPower(.75);
         }else if(gamepad1.right_bumper){
-            flyWheel1.setPower(-1);
-            flyWheel2.setPower(-1);
-            flyWheelServo1.setPower(.25);
-            flyWheelServo2.setPower(.25);
+            flyWheel1.setPower(-.75);
+            flyWheel2.setPower(-.75);
         }else{
             flyWheel1.setPower(0);
             flyWheel2.setPower(0);
-            flyWheelServo1.setPower(.5);
-            flyWheelServo2.setPower(.5);
         }
     }
 
-    public void openServo(boolean open){
-        if (open) {
-            servo.setPosition(.5);
-        }else{
-            servo.setPosition(.125);
+    public void moveFoundationServo(){
+        if (gamepad2.a) {
+            servo.setPosition(.45);
+        } else {
+            servo.setPosition(1);
         }
     }
 
-    public void moveServoArm(boolean turn){
+    public void toggleGripper() {
+
+        if (gamepad2.x && !isHandled) {
+            if(isOpen){
+                gripperServo.setPosition(1);
+                isOpen = false;
+            }else{
+                gripperServo.setPosition(0);
+                isOpen = true;
+            }
+            isHandled = true;
+        }
+        else if(!gamepad2.x){
+            isHandled = false;
+        }
+    }
+    public void moveServo(){
+        if(gamepad1.y){
+            testServo.setPower(1);
+        } else if (gamepad1.x){
+            testServo.setPower(-1);
+        } else {
+            testServo.setPower(0);
+        }
+    }
+
+    public void rotateGripperWrist(boolean turn){
         if(turn){
             armServo.setPosition(1);
         }else{
@@ -66,15 +92,48 @@ public class MM_TeleOp extends LinearOpMode {
         }
     }
 
+    public void armUp(double speed) {
+        int armPosition = armMotor.getCurrentPosition() + (int)(speed * 100);
+        armMotor.setTargetPosition(armPosition);
+        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armMotor.setPower(speed);
+    }
+    public void armDown(double speed) {
+        int armPosition = armMotor.getCurrentPosition() + (int)(speed * 100);
+        armMotor.setTargetPosition(armPosition);
+        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armMotor.setPower(speed);
+    }
+    public void armHold () {
+        armMotor.setTargetPosition(armMotor.getCurrentPosition());
+        armMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        armMotor.setPower(.5);
+    }
+    public void armMove(double speed){
+        if (speed > 0) {
+            armUp(speed);
+        }
+        else if (speed < 0) {
+            armDown(speed);
+        }
+        else {
+            armHold();
+        }
+    }
+
 
     public void initial() {
-        flyWheelServo1 = hardwareMap.crservo.get("servo1");
-        flyWheelServo2 = hardwareMap.crservo.get("servo2");
         flyWheel1 = hardwareMap.get(DcMotor.class, "flyWheel1");
         flyWheel2 = hardwareMap.get(DcMotor.class, "flyWheel2");
         flyWheel1.setDirection(DcMotorSimple.Direction.FORWARD);
         flyWheel2.setDirection(DcMotorSimple.Direction.REVERSE);
+        armMotor = hardwareMap.get(DcMotor.class, "armMotor");
+        armMotor.setDirection(DcMotorSimple.Direction.FORWARD);
+        gripperServo = hardwareMap.get(Servo.class, "gripServo");
         armServo = hardwareMap.get(Servo.class, "armServo");
         servo = hardwareMap.get(Servo.class, "servo");
+        testServo = hardwareMap.get(CRServo.class, "testServo");
+        armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        armMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     }
 }
