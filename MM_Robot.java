@@ -5,6 +5,8 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 public class MM_Robot {
     private LinearOpMode opMode;
     public MM_Drivetrain drivetrain;
+    public MM_Collector collector;
+    public MM_Arm arm;
 
     public MM_Robot(LinearOpMode opMode){
         this.opMode = opMode;
@@ -12,9 +14,7 @@ public class MM_Robot {
 
     public void init(){
         drivetrain = new MM_Drivetrain(opMode);
-    }
-
-    public void driveWithSticks() {
-        drivetrain.driveWithSticks();
+        collector = new MM_Collector(opMode);
+        arm = new MM_Arm(opMode);
     }
 }

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes2019skystone;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -20,6 +21,8 @@ public class MM_Drivetrain {
 
     private DcMotor LMotor = null;
     private DcMotor RMotor = null;
+
+    private Servo foundationServo = null;
 
     private final double PROPORTIONAL_CONSTANT = 0.02;
     private final double HEADING_THRESHOLD = 1;
@@ -44,6 +47,8 @@ public class MM_Drivetrain {
 
         imu = opMode.hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
+
+        foundationServo = opMode.hardwareMap.get(Servo.class, "foundationServo");
     }
 
     public void gyroTurn(double speed, double angle) {
@@ -149,4 +154,12 @@ public class MM_Drivetrain {
         LMotor.setPower(leftPower);
         RMotor.setPower(rightPower);
     }
+    public void controlFoundation(){
+        if (opMode.gamepad2.a) {
+            foundationServo.setPosition(.45);
+        } else {
+            foundationServo.setPosition(1);
+        }
+    }
+
 }
