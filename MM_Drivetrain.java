@@ -10,57 +10,61 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import org.firstinspires.ftc.teamcode.R;
 
 
 public class MM_Drivetrain {
-    BNO055IMU imu;
-
-    Orientation angles;
-
-    private LinearOpMode opMode = null;
-
+    private BNO055IMU imu;
     private DcMotor LMotor = null;
     private DcMotor RMotor = null;
-
     private Servo foundationServo = null;
 
     private final double PROPORTIONAL_CONSTANT = 0.02;
     private final double HEADING_THRESHOLD = 1;
-    private final double wheelDiameter = 4.3;
-    private final double ticksPerRotation = 723.24;
-    private final double ticksPerInch = ticksPerRotation / (wheelDiameter * 3.14);
+    private final double WHEEL_DIAMETER = 4.3;
+    private final double TICKS_PER_ROTATION = 723.24;
+    private final double TICKS_PER_INCH = TICKS_PER_ROTATION / (WHEEL_DIAMETER * 3.14);
+
+    private LinearOpMode opMode = null;
+    private Orientation angles;
     private boolean isHandled = false;
     private boolean isFast = true;
 
     public MM_Drivetrain(LinearOpMode opMode) {
         this.opMode = opMode;
 
+        //init motors
         LMotor = opMode.hardwareMap.get(DcMotor.class, "LMotor");
         RMotor = opMode.hardwareMap.get(DcMotor.class, "RMotor");
-
         LMotor.setDirection(DcMotor.Direction.REVERSE);
         RMotor.setDirection(DcMotor.Direction.FORWARD);
+        resetEncoder();
 
+        //init gyro
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit = BNO055IMU.AngleUnit.DEGREES;
         parameters.calibrationDataFile = "BNO055IMUCalibration.json";
-
         imu = opMode.hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
 
+        //init servo
         foundationServo = opMode.hardwareMap.get(Servo.class, "foundationServo");
+        foundationServo.setPosition(1);
+    }
+
+    private void resetEncoder() {
+        LMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        RMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        LMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        RMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
     public void gyroTurn(double speed, double angle) {
-
-        LMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        RMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        while (opMode.opModeIsActive() && !onHeading(speed, angle, PROPORTIONAL_CONSTANT)) {
+        while (opMode.opModeIsActive() && !onHeading(speed, angle)) {
         }
     }
 
-    boolean onHeading(double speed, double angle, double ProportionalConstant) {
+    boolean onHeading(double speed, double angle) {
         double error;
         double steer;
         boolean onTarget = false;
@@ -70,12 +74,11 @@ public class MM_Drivetrain {
         error = getError(angle);
 
         if (Math.abs(error) <= HEADING_THRESHOLD) {
-            steer = 0.0;
             leftSpeed = 0.0;
             rightSpeed = 0.0;
             onTarget = true;
         } else {
-            steer = getSteer(error, ProportionalConstant);
+            steer = getSteer(error);
             rightSpeed = speed * steer;
             leftSpeed = -rightSpeed;
         }
@@ -98,24 +101,8 @@ public class MM_Drivetrain {
         return robotError;
     }
 
-    public double getSteer(double error, double PCoeff) {
-        return Range.clip(error * PCoeff, -1, 1);
-    }
-
-    public void runToPosition() {
-        LMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        RMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-
-        LMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        RMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-
-        LMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        RMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-    }
-
-    public void runWithEncoder() {
-        LMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        RMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    public double getSteer(double error) {
+        return Range.clip(error * PROPORTIONAL_CONSTANT, -1, 1);
     }
 
     public void driveWithInches(double inches, double speed) {
@@ -124,8 +111,8 @@ public class MM_Drivetrain {
 
         runToPosition();
 
-        newLeftTarget = LMotor.getCurrentPosition() + (int) (inches * ticksPerInch);
-        newRightTarget = RMotor.getCurrentPosition() + (int) (inches * ticksPerInch);
+        newLeftTarget = LMotor.getCurrentPosition() + (int) (inches * TICKS_PER_INCH);
+        newRightTarget = RMotor.getCurrentPosition() + (int) (inches * TICKS_PER_INCH);
         LMotor.setTargetPosition(newLeftTarget);
         RMotor.setTargetPosition(newRightTarget);
 
@@ -154,6 +141,7 @@ public class MM_Drivetrain {
         LMotor.setPower(leftPower);
         RMotor.setPower(rightPower);
     }
+
     public void controlFoundation(){
         if (opMode.gamepad2.a) {
             foundationServo.setPosition(.45);
@@ -162,4 +150,8 @@ public class MM_Drivetrain {
         }
     }
 
+    public void runToPosition() {
+        LMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        RMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
 }

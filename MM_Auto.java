@@ -13,17 +13,6 @@ public class MM_Auto extends LinearOpMode {
         waitForStart();
 
         robot.drivetrain.driveWithInches(12.5,.5);
-        robot.drivetrain.runWithEncoder();
-        robot.drivetrain.gyroTurn(.5,-45);
-        robot.drivetrain.runToPosition();
-        robot.drivetrain.driveWithInches(5,.5);
-        robot.drivetrain.runWithEncoder();
-        robot.drivetrain.gyroTurn(.5,-270);
-        robot.drivetrain.runToPosition();
-        robot.drivetrain.driveWithInches(25,.5);
-        robot.drivetrain.runWithEncoder();
-        robot.drivetrain.gyroTurn(.5,-179);
-        robot.drivetrain.runToPosition();
-        robot.drivetrain.driveWithInches(30,.5);
+        robot.drivetrain.gyroTurn(.5,90);
     }
 }

@@ -1,51 +1,49 @@
 package org.firstinspires.ftc.teamcode.opmodes2019skystone;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Servo;
 
 public class MM_Collector {
 
     private LinearOpMode opMode = null;
 
-    private DcMotor flyWheel1 = null;
-    private DcMotor flyWheel2 = null;
+    private DcMotor flywheelLeft = null;
+    private DcMotor flywheelRight = null;
 
-    private CRServo alignerServo = null;
+    private Servo alignerServo = null;
 
     public MM_Collector(LinearOpMode opMode){
         this.opMode = opMode;
 
-        flyWheel1 = opMode.hardwareMap.get(DcMotor.class, "flyWheel1");
-        flyWheel2 = opMode.hardwareMap.get(DcMotor.class, "flyWheel2");
-        flyWheel1.setDirection(DcMotorSimple.Direction.FORWARD);
-        flyWheel2.setDirection(DcMotorSimple.Direction.REVERSE);
+        flywheelLeft = opMode.hardwareMap.get(DcMotor.class, "flywheelLeft");
+        flywheelRight = opMode.hardwareMap.get(DcMotor.class, "flywheelRight");
+        alignerServo = opMode.hardwareMap.get(Servo.class, "alignerServo");
 
-        alignerServo = opMode.hardwareMap.get(CRServo.class, "alignerServo");
+        flywheelLeft.setDirection(DcMotor.Direction.FORWARD);
+        flywheelRight.setDirection(DcMotor.Direction.REVERSE);
     }
 
     public void controlFlywheels() {
         if (opMode.gamepad1.left_bumper){
-            flyWheel1.setPower(1);
-            flyWheel2.setPower(1);
+            powerFlywheels(1);
         }else if(opMode.gamepad1.right_bumper){
-            flyWheel1.setPower(-1);
-            flyWheel2.setPower(-1);
+            powerFlywheels(-1);
         }else{
-            flyWheel1.setPower(0);
-            flyWheel2.setPower(0);
+            powerFlywheels(0);
         }
     }
+
+    private void powerFlywheels(double power) {
+        flywheelLeft.setPower(power);
+        flywheelRight.setPower(power);
+    }
+
     public void alignStone(){
         if(opMode.gamepad1.y){
-            alignerServo.setPower(1);
-        } else if (opMode.gamepad1.x){
-            alignerServo.setPower(-1);
+            alignerServo.setPosition(1);
         } else {
-            alignerServo.setPower(0);
+            alignerServo.setPosition(.5);
         }
     }
-
-
 }
