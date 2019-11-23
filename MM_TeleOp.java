@@ -36,5 +36,6 @@ public class MM_TeleOp extends LinearOpMode {
     public void controlCollector(){
         robot.collector.alignStone();
         robot.collector.controlFlywheels();
+        robot.collector.moveSkystick();
     }
 }

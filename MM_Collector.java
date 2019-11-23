@@ -12,6 +12,7 @@ public class MM_Collector {
     private DcMotor flywheelRight = null;
 
     private Servo alignerServo = null;
+    private Servo skystick = null;
 
     public MM_Collector(LinearOpMode opMode){
         this.opMode = opMode;
@@ -19,9 +20,13 @@ public class MM_Collector {
         flywheelLeft = opMode.hardwareMap.get(DcMotor.class, "flywheelLeft");
         flywheelRight = opMode.hardwareMap.get(DcMotor.class, "flywheelRight");
         alignerServo = opMode.hardwareMap.get(Servo.class, "alignerServo");
+        skystick = opMode.hardwareMap.get(Servo.class, "skystick");
 
         flywheelLeft.setDirection(DcMotor.Direction.FORWARD);
         flywheelRight.setDirection(DcMotor.Direction.REVERSE);
+
+        alignerServo.setPosition(0);
+        skystick.setPosition(1);
     }
 
     public void controlFlywheels() {
@@ -45,5 +50,21 @@ public class MM_Collector {
         } else {
             alignerServo.setPosition(.5);
         }
+    }
+
+    public void moveSkystick(){
+        if (opMode.gamepad2.y){
+            skystick.setPosition(0);
+        }else{
+            skystick.setPosition(1);
+        }
+    }
+
+    public void skystickDown() {
+        skystick.setPosition(0);
+    }
+
+    public void skystickUp() {
+        skystick.setPosition(1);
     }
 }

@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes2019skystone;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
@@ -49,17 +50,11 @@ public class MM_Drivetrain {
 
         //init servo
         foundationServo = opMode.hardwareMap.get(Servo.class, "foundationServo");
-        foundationServo.setPosition(1);
-    }
-
-    private void resetEncoder() {
-        LMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        RMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        LMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        RMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        foundationServo.setPosition(0);
     }
 
     public void gyroTurn(double speed, double angle) {
+        runWithEncoder();
         while (opMode.opModeIsActive() && !onHeading(speed, angle)) {
         }
     }
@@ -109,6 +104,7 @@ public class MM_Drivetrain {
         int newLeftTarget;
         int newRightTarget;
 
+        runWithEncoder();
         runToPosition();
 
         newLeftTarget = LMotor.getCurrentPosition() + (int) (inches * TICKS_PER_INCH);
@@ -116,12 +112,17 @@ public class MM_Drivetrain {
         LMotor.setTargetPosition(newLeftTarget);
         RMotor.setTargetPosition(newRightTarget);
 
-        LMotor.setPower(Math.abs(speed));
-        RMotor.setPower(Math.abs(speed));
+        LMotor.setPower(speed);
+        RMotor.setPower(speed);
 
-        while (RMotor.isBusy() || LMotor.isBusy() && opMode.opModeIsActive()) {
-
+        while (opMode.opModeIsActive() && (RMotor.isBusy() || LMotor.isBusy())) {
+            opMode.telemetry.addData("left encoder:", LMotor.getCurrentPosition());
+            opMode.telemetry.addData("right encoder:", RMotor.getCurrentPosition());
+            opMode.telemetry.addData("target Position:", LMotor.getTargetPosition());
+            opMode.telemetry.update();
         }
+        LMotor.setPower(0);
+        RMotor.setPower(0);
     }
 
     public void driveWithSticks() {
@@ -144,14 +145,64 @@ public class MM_Drivetrain {
 
     public void controlFoundation(){
         if (opMode.gamepad2.a) {
-            foundationServo.setPosition(.45);
-        } else {
             foundationServo.setPosition(1);
+        } else {
+            foundationServo.setPosition(0);
         }
     }
 
     public void runToPosition() {
         LMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         RMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+
+    public void resetEncoder() {
+        LMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        RMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        runWithEncoder();
+    }
+
+    private void runWithEncoder() {
+        LMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        RMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
+    public void foundationUp() {
+        foundationServo.setPosition(0);
+    }
+
+    public void foundationDown() {
+        foundationServo.setPosition(1);
+    }
+
+    public void driveLeftConfig() {
+        gyroTurn(.25, 90);
+        driveWithInches(-4,.25);
+        gyroTurn(.25,0);
+        driveWithInches(-9,.25);
+    }
+    //robot is backwards so all distances are negative
+    public void driveCenterConfig() {
+        gyroTurn(.25, -90);
+        driveWithInches(-4,.25);
+        gyroTurn(.25,0);
+        driveWithInches(-9,.25);
+    }
+    public void driveRightConfig() {
+        gyroTurn(.25, -90);
+        driveWithInches(-12,.25);
+        gyroTurn(.25,0);
+        driveWithInches(-9,.25);
+    }
+    public void distanceToSkystone(int stonePosition) {
+        if (stonePosition == 0) {
+            driveLeftConfig();
+        }
+        else if(stonePosition == 1) {
+            driveCenterConfig();
+        }
+        else{
+            driveRightConfig();
+        }
     }
 }

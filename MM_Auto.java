@@ -9,10 +9,17 @@ public class MM_Auto extends LinearOpMode {
 
     public void runOpMode() {
         robot.init();
+        robot.vuforia.init();
 
         waitForStart();
 
-        robot.drivetrain.driveWithInches(12.5,.5);
-        robot.drivetrain.gyroTurn(.5,90);
+        robot.drivetrain.resetEncoder();
+        robot.drivetrain.driveWithInches(-19,.20);
+        robot.driveToSkystone();
+        robot.collector.skystickDown();
+        robot.drivetrain.driveWithInches(20,.5);
+        robot.drivetrain.gyroTurn(.25,90);
+        robot.drivetrain.driveWithInches(36,.5);
+        robot.collector.skystickUp();
     }
 }
