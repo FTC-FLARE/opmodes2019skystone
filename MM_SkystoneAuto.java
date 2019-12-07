@@ -17,11 +17,11 @@ public class MM_SkystoneAuto extends LinearOpMode {
         int skystone = 0;
         while (!opModeIsActive()){ //x is blue which is true, b is red which is false
             if(gamepad1.x) {
-                alliance = true;
+                alliance = false;
                 ally = "Blue";
             }
             else if (gamepad1.b){
-                alliance = false;
+                alliance = true;
                 ally = "Red";
             }
             if (gamepad1.y && !isHandled){
