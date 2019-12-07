@@ -19,8 +19,4 @@ public class MM_Robot {
         arm = new MM_Arm(opMode);
         vuforia = new MM_Vuforia(opMode);
     }
-    public void driveToSkystone (){
-        int stonePosition = vuforia.getSkystone();
-        drivetrain.distanceToSkystone(stonePosition);
-    }
 }

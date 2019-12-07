@@ -1,13 +1,15 @@
 package org.firstinspires.ftc.teamcode.opmodes2019skystone;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "MM_TeleOp", group = "Mechanical Meltdown")
+@TeleOp(name = "MM_TeleOp", group = "Mechanical Meltdown")
 public class MM_TeleOp extends LinearOpMode {
     private MM_Robot robot = new MM_Robot(this);
 
     public void runOpMode() {
         robot.init();
+        robot.drivetrain.runWithoutEncoder();
 
         telemetry.addLine("Press Play to Start");
         telemetry.update();
@@ -36,6 +38,7 @@ public class MM_TeleOp extends LinearOpMode {
     public void controlCollector(){
         robot.collector.alignStone();
         robot.collector.controlFlywheels();
-        robot.collector.moveSkystick();
+        robot.collector.moveBlueSkystick();
+        robot.collector.moveRedSkystick();
     }
 }

@@ -167,6 +167,11 @@ public class MM_Drivetrain {
         RMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
+    public void runWithoutEncoder() {
+        LMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        RMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    }
+
     public void foundationUp() {
         foundationServo.setPosition(0);
     }
@@ -175,34 +180,71 @@ public class MM_Drivetrain {
         foundationServo.setPosition(1);
     }
 
-    public void driveLeftConfig() {
-        gyroTurn(.25, 90);
-        driveWithInches(-4,.25);
-        gyroTurn(.25,0);
-        driveWithInches(-9,.25);
-    }
     //robot is backwards so all distances are negative
-    public void driveCenterConfig() {
-        gyroTurn(.25, -90);
-        driveWithInches(-4,.25);
-        gyroTurn(.25,0);
-        driveWithInches(-9,.25);
+    //blue alliance is true, red is false (same for all uses)
+    //commented out code is tested and verified working the rest has not been through our RTR (Rigorous Testing Regime)
+    public void driveLeftConfig(boolean alliance) {
+        if (alliance){
+//            gyroTurn(.25, 90);
+//            driveWithInches(-4,.25);
+//            gyroTurn(.25,0);
+//            driveWithInches(-9,.25);
+            driveWithInches(-8,.25);
+        }
+        else {
+//            gyroTurn(.25, -90);
+//            driveWithInches(-4,.25);
+//            gyroTurn(.25,0);
+//            driveWithInches(-9,.25);
+            driveWithInches(-8,.25);
+        }
     }
-    public void driveRightConfig() {
-        gyroTurn(.25, -90);
-        driveWithInches(-12,.25);
-        gyroTurn(.25,0);
-        driveWithInches(-9,.25);
+
+    public void driveCenterConfig(boolean alliance) {
+        if (alliance) {
+//            gyroTurn(.25, -90);
+//            driveWithInches(-3,.25);
+//            gyroTurn(.25,0);
+//            driveWithInches(-9,.25);
+            gyroTurn(.25,-20);
+            driveWithInches(-8,.25);
+        }
+        else {
+//            gyroTurn(.25, 90);
+//            driveWithInches(5,.25);
+//            gyroTurn(.25,0);
+//            driveWithInches(-9,.25);
+            gyroTurn(.25,20);
+            driveWithInches(-8,.25);
+        }
     }
-    public void distanceToSkystone(int stonePosition) {
+
+    public void driveRightConfig(boolean alliance) {
+        if (alliance) {
+//            gyroTurn(.25, -90);
+//            driveWithInches(-12,.25);
+//            gyroTurn(.25,0);
+//            driveWithInches(-9,.25);
+            driveWithInches(-8,.25);
+        }
+        else {
+//            gyroTurn(.25, 90);
+//            driveWithInches(-4,.25);
+//            gyroTurn(.25,0);
+//            driveWithInches(-9,.25);
+            driveWithInches(-8,.25);
+        }
+    }
+
+    public void driveToSkystone(int stonePosition, boolean alliance) {
         if (stonePosition == 0) {
-            driveLeftConfig();
+            driveLeftConfig(alliance);
         }
         else if(stonePosition == 1) {
-            driveCenterConfig();
+            driveCenterConfig(alliance);
         }
         else{
-            driveRightConfig();
+            driveRightConfig(alliance);
         }
     }
 }
