@@ -47,7 +47,7 @@ public class MM_SkystoneAuto extends LinearOpMode {
 
         robot.drivetrain.resetEncoder();
         robot.drivetrain.driveWithInches(-19,.25);
-        int stonePosition = robot.vuforia.getSkystone();
+        int stonePosition = robot.vuforia.getSkystone(alliance);
         robot.drivetrain.driveToSkystone(stonePosition, alliance);
         robot.collector.skystickDown(alliance,stonePosition);
         sleep(1000);

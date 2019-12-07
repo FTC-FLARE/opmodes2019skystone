@@ -100,7 +100,7 @@ public class MM_Vuforia {
         opMode.telemetry.addData("position: " , targetLocation);
         return targetLocation;
     }
-    public int getSkystone() {
+    public int getSkystone(boolean alliance) {
         runtime.reset();
         int skystonePosition = 0;  //0 is the left side 1 is center 2 is right
         boolean targetFound = false;

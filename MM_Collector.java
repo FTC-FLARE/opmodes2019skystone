@@ -98,7 +98,7 @@ public class MM_Collector {
                 redSkystickUp();
             }
         }else{
-            if (stonePosition == 0 || stonePosition == 1){
+            if (stonePosition == 2 || stonePosition == 1){
                 redSkystickUp();
             }else{
                 blueSkystickUp();
@@ -114,7 +114,7 @@ public class MM_Collector {
                 redSkystickDown();
             }
         }else{
-            if (stonePosition == 0 || stonePosition == 1){
+            if (stonePosition == 2 || stonePosition == 1){
                 redSkystickDown();
             }else{
                 blueSkystickDown();
