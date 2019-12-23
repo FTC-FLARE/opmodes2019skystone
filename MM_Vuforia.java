@@ -33,12 +33,12 @@ public class MM_Vuforia {
         this.opMode = opMode;
     }
 
-    public void init(){
+    public void init() {
         int cameraMonitorViewId = opMode.hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", opMode.hardwareMap.appContext.getPackageName());
         VuforiaLocalizer.Parameters parameters = new VuforiaLocalizer.Parameters(cameraMonitorViewId);
 
         parameters.vuforiaLicenseKey = "AZ5woGn/////AAABmSDumo9pA0BDovmvaV5gG7wLT6ES1QrKcI14JsHiEtQ7Gb6e+KM8ILBQGt8hjfHFNwKixlUDQ6vuz0AdKiYelGz5KcfJ9UV4xCMuDxDGvzOqYIS46QLHeFtsx4c4EP5o5a+H4ZM4crit1cva6avYORJXAH4EYCNluvawI+qm7qOru223kxOmNw83qfl17h9ASLtxxZuZ6OiAnQEq0OsSJf5n43QzVRFI55ZYdVAq+7bSeBEMptf1ZbrzvAZWnq8diTq+ojaADlkeZloub6tSLn4OqqbVtnjk65dNVejK2nTY1y7j7v0BQAkqc0w6oMkg30ynxOoyGid1xjSDDEaS1DvbVjQO0ODZZ4O9v6C30dtQ";
-        parameters.cameraDirection   = CAMERA_CHOICE;
+        parameters.cameraDirection = CAMERA_CHOICE;
 
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
 
@@ -48,13 +48,13 @@ public class MM_Vuforia {
         stoneTarget.setName("Stone Target");
 
         stoneTarget.setLocation(OpenGLMatrix
-                .translation(0, 0, (float)(2 * mmPerInch))
+                .translation(0, 0, (float) (2 * mmPerInch))
                 .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, 90, 0, 0)));
 
 
         OpenGLMatrix robotFromCamera = OpenGLMatrix
-                .translation((float)(3 * mmPerInch), (float)(-6 * mmPerInch), (float)(5 * mmPerInch))
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, YZX, DEGREES, 0,0 ,90));
+                .translation((float) (3 * mmPerInch), (float) (-6 * mmPerInch), (float) (5 * mmPerInch))
+                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, YZX, DEGREES, 0, 0, 90));
 
         ((VuforiaTrackableDefaultListener) stoneTarget.getListener()).setPhoneInformation(robotFromCamera, parameters.cameraDirection);
 
@@ -64,8 +64,8 @@ public class MM_Vuforia {
     public int detectSkystone() {
         int targetLocation = 0;
         targetVisible = false;
-            if (((VuforiaTrackableDefaultListener)stoneTarget.getListener()).isVisible()) {
-                targetVisible = true;
+        if (((VuforiaTrackableDefaultListener) stoneTarget.getListener()).isVisible()) {
+            targetLocation = 1;
 
 //            OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener) stoneTarget.getListener()).getUpdatedRobotLocation();
 //            if (robotLocationTransform != null) {
@@ -99,13 +99,14 @@ public class MM_Vuforia {
 ////        opMode.telemetry.addData("position: ", targetLocation);
         return targetLocation;
     }
+
     public int getSkystone(boolean alliance) {
         runtime.reset();
         int skystonePosition = 0;  //0 is the left side 1 is center 2 is right
         boolean targetFound = false;
         while (opMode.opModeIsActive() && !targetFound && runtime.seconds() < 1.5) {
             skystonePosition = detectSkystone();
-            if (skystonePosition != 0){
+            if (skystonePosition != 0) {
                 targetFound = true;
             }
         }

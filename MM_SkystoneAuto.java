@@ -4,7 +4,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 // naming is (alliance color, side of field, amount of skystones, any other auto functions)
-@Autonomous(name = "MM_Auto", group = "Mechanical Meltdown")
+@Autonomous(name = "MM_Skystone_Auto", group = "Mechanical Meltdown")
 public class MM_SkystoneAuto extends LinearOpMode {
     private MM_Robot robot = new MM_Robot(this);
 
@@ -15,7 +15,7 @@ public class MM_SkystoneAuto extends LinearOpMode {
         String ally = "";
         boolean isHandled = false;
         int skystone = 0;
-        while (!opModeIsActive()){ //x is blue which is true, b is red which is false
+        while (!opModeIsActive()){ //x is blue which is false, b is red which is true
             if(gamepad1.x) {
                 alliance = false;
                 ally = "Blue";

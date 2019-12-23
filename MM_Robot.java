@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.opmodes2019skystone;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import static android.os.SystemClock.sleep;
+
 public class MM_Robot {
     private LinearOpMode opMode;
     public MM_Drivetrain drivetrain;
@@ -18,5 +20,11 @@ public class MM_Robot {
         collector = new MM_Collector(opMode);
         arm = new MM_Arm(opMode);
         vuforia = new MM_Vuforia(opMode);
+    }
+    public void driveToTarget(){
+        drivetrain.setMotorPowersSame(-.25);
+        while(vuforia.detectSkystone() == 0){
+        }
+        drivetrain.setMotorPowersSame(0);
     }
 }

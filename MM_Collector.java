@@ -12,8 +12,8 @@ public class MM_Collector {
     private DcMotor flywheelRight = null;
 
     private Servo alignerServo = null;
-    private Servo blueSkystick = null;
     private Servo redSkystick = null;
+    private Servo blueSkystick = null;
 
     public MM_Collector(LinearOpMode opMode) {
         this.opMode = opMode;
@@ -21,16 +21,16 @@ public class MM_Collector {
         flywheelLeft = opMode.hardwareMap.get(DcMotor.class, "flywheelLeft");
         flywheelRight = opMode.hardwareMap.get(DcMotor.class, "flywheelRight");
         alignerServo = opMode.hardwareMap.get(Servo.class, "alignerServo");
-        blueSkystick = opMode.hardwareMap.get(Servo.class, "blueSkystick");
         redSkystick = opMode.hardwareMap.get(Servo.class, "redSkystick");
+        blueSkystick = opMode.hardwareMap.get(Servo.class, "blueSkystick");
 
 
         flywheelLeft.setDirection(DcMotor.Direction.FORWARD);
         flywheelRight.setDirection(DcMotor.Direction.REVERSE);
 
         //skystick servos are opposite each other
-        blueSkystick.setPosition(1);
         redSkystick.setPosition(0);
+        blueSkystick.setPosition(1);
         alignerServo.setPosition(0);
     }
 
@@ -58,14 +58,6 @@ public class MM_Collector {
         }
     }
 
-    public void moveBlueSkystick() {
-        if (opMode.gamepad2.y) {
-            blueSkystick.setPosition(0);
-        } else {
-            blueSkystick.setPosition(1);
-        }
-    }
-
     public void moveRedSkystick() {
         if (opMode.gamepad2.y) {
             redSkystick.setPosition(1);
@@ -74,12 +66,12 @@ public class MM_Collector {
         }
     }
 
-    public void blueSkystickDown() {
-        blueSkystick.setPosition(0);
-    }
-
-    public void blueSkystickUp() {
-        blueSkystick.setPosition(1);
+    public void moveBlueSkystick() {
+        if (opMode.gamepad2.y) {
+            blueSkystick.setPosition(0);
+        } else {
+            blueSkystick.setPosition(1);
+        }
     }
 
     public void redSkystickDown() {
@@ -88,6 +80,14 @@ public class MM_Collector {
 
     public void redSkystickUp() {
         redSkystick.setPosition(0);
+    }
+
+    public void blueSkystickDown() {
+        blueSkystick.setPosition(0);
+    }
+
+    public void blueSkystickUp() {
+        blueSkystick.setPosition(1);
     }
 
     public void skystickUp(boolean alliance, int stonePosition) {

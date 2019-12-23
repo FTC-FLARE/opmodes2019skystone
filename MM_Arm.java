@@ -2,15 +2,18 @@ package org.firstinspires.ftc.teamcode.opmodes2019skystone;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class MM_Arm {
 
-    private final int ARM_SPEED = 125;
+    private final int ARM_SPEED = 50;//125
 
     private DcMotor armMotor = null;
     private Servo gripperServo = null;
     private Servo wristServo = null;
+    private DigitalChannel lowerBoundArm = null;
+    private DigitalChannel upperBoundArm = null;
 
     private boolean isHandled = false;
     private boolean isOpen = true;
@@ -24,6 +27,8 @@ public class MM_Arm {
         armMotor = opMode.hardwareMap.get(DcMotor.class, "armMotor");
         gripperServo = opMode.hardwareMap.get(Servo.class, "gripServo");
         wristServo = opMode.hardwareMap.get(Servo.class, "wristServo");
+        lowerBoundArm = opMode.hardwareMap.get(DigitalChannel.class, "upperArm");
+        upperBoundArm = opMode.hardwareMap.get(DigitalChannel.class, "lowerArm");
 
         armMotor.setDirection(DcMotor.Direction.FORWARD);
         armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -35,10 +40,15 @@ public class MM_Arm {
     }
 
     public void armMove(){
-        //TODO add sensors or encoder counts to protect hardware
         int targetArm = armMotor.getCurrentPosition() + (int)((opMode.gamepad2.right_trigger - opMode.gamepad2.left_trigger) * ARM_SPEED);
         armMotor.setTargetPosition(targetArm);
-        armMotor.setPower(1);
+        if ((!lowerBoundArm.getState() && opMode.gamepad2.left_trigger == 0) || (!upperBoundArm.getState() && opMode.gamepad2.right_trigger == 0)) {
+            armMotor.setPower(0);
+        }else{
+            armMotor.setPower(1);
+        }
+        opMode.telemetry.addData("trigger", opMode.gamepad2.left_trigger);
+        opMode.telemetry.addData("bottomSensor", lowerBoundArm.getState());
         opMode.telemetry.addData("Arm Position", armMotor.getCurrentPosition());
     }
 
@@ -65,4 +75,6 @@ public class MM_Arm {
             wristServo.setPosition(0);
         }
     }
+
+
 }

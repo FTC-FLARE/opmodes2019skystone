@@ -125,6 +125,15 @@ public class MM_Drivetrain {
         RMotor.setPower(0);
     }
 
+    public void setMotorPowersSame(double power){
+        LMotor.setPower(power);
+        RMotor.setPower(power);
+    }
+
+    public double currentPosition(){
+        return LMotor.getCurrentPosition()/TICKS_PER_INCH;
+    }
+
     public void driveWithSticks() {
         double leftPower = -opMode.gamepad1.left_stick_y;
         double rightPower = -opMode.gamepad1.right_stick_y;
@@ -181,58 +190,33 @@ public class MM_Drivetrain {
     }
 
     //robot is backwards so all distances are negative
-    //blue alliance is true, red is false (same for all uses)
-    //commented out code is tested and verified working the rest has not been through our RTR (Rigorous Testing Regime)
+    //blue alliance is false, red is true (same for all uses)
     public void driveLeftConfig(boolean alliance) {
         if (alliance){
-//            gyroTurn(.25, 90);
-//            driveWithInches(-4,.25);
-//            gyroTurn(.25,0);
-//            driveWithInches(-9,.25);
-            driveWithInches(-8,.25);
+            driveWithInches(-8.5,.25);
         }
         else {
-//            gyroTurn(.25, -90);
-//            driveWithInches(-4,.25);
-//            gyroTurn(.25,0);
-//            driveWithInches(-9,.25);
-            driveWithInches(-8,.25);
+            driveWithInches(-8.5,.25);
         }
     }
 
     public void driveCenterConfig(boolean alliance) {
         if (alliance) {
-//            gyroTurn(.25, -90);
-//            driveWithInches(-3,.25);
-//            gyroTurn(.25,0);
-//            driveWithInches(-9,.25);
             gyroTurn(.25,-20);
-            driveWithInches(-8,.25);
+            driveWithInches(-8.5,.25);
         }
         else {
-//            gyroTurn(.25, 90);
-//            driveWithInches(5,.25);
-//            gyroTurn(.25,0);
-//            driveWithInches(-9,.25);
             gyroTurn(.25,20);
-            driveWithInches(-8,.25);
+            driveWithInches(-8.5,.25);
         }
     }
 
     public void driveRightConfig(boolean alliance) {
         if (alliance) {
-//            gyroTurn(.25, -90);
-//            driveWithInches(-12,.25);
-//            gyroTurn(.25,0);
-//            driveWithInches(-9,.25);
-            driveWithInches(-8,.25);
+            driveWithInches(-8.5,.25);
         }
         else {
-//            gyroTurn(.25, 90);
-//            driveWithInches(-4,.25);
-//            gyroTurn(.25,0);
-//            driveWithInches(-9,.25);
-            driveWithInches(-8,.25);
+            driveWithInches(-8.5,.25);
         }
     }
 
