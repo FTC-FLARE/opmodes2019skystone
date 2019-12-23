@@ -67,37 +67,36 @@ public class MM_Vuforia {
             if (((VuforiaTrackableDefaultListener)stoneTarget.getListener()).isVisible()) {
                 targetVisible = true;
 
-                OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)stoneTarget.getListener()).getUpdatedRobotLocation();
-                if (robotLocationTransform != null) {
-                    lastLocation = robotLocationTransform;
-                }
-            }
-
-
-        if (targetVisible) {
-            VectorF translation = lastLocation.getTranslation();
-            opMode.telemetry.addData("Pos (in)", "{X, Y} = %.1f, %.1f",
-                    translation.get(0) / mmPerInch, translation.get(1) / mmPerInch);
-        } else {
-            targetLocation = 0;
+//            OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener) stoneTarget.getListener()).getUpdatedRobotLocation();
+//            if (robotLocationTransform != null) {
+//                lastLocation = robotLocationTransform;
+//            }
+//        }
+//
+//
+//        if (targetVisible) {
+//            VectorF translation = lastLocation.getTranslation();
+//            opMode.telemetry.addData("Pos (in)", "{X, Y} = %.1f, %.1f",translation.get(0) / mmPerInch, translation.get(1) / mmPerInch);
+//            opMode.telemetry.update();
+//        } else {
+//            targetLocation = 0;
+//        }
+//
+//        if (targetVisible == true) {
+//            OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener) stoneTarget.getListener()).getUpdatedRobotLocation();
+//            if (robotLocationTransform != null) {
+//                lastLocation = robotLocationTransform;
+//            }
+//
+//            VectorF translation = lastLocation.getTranslation();
+//
+//            if (translation.get(0) / mmPerInch < 5) {
+//                targetLocation = 2;
+//            } else {
+//                targetLocation = 1;
+//            }
         }
-
-        if (targetVisible == true){
-            OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener)stoneTarget.getListener()).getUpdatedRobotLocation();
-            if (robotLocationTransform != null) {
-                lastLocation = robotLocationTransform;
-            }
-
-            VectorF translation = lastLocation.getTranslation();
-
-            if (translation.get(0) / mmPerInch < 5) {
-                targetLocation = 2;
-            }
-            else {
-                targetLocation = 1;
-            }
-        }
-        opMode.telemetry.addData("position: " , targetLocation);
+////        opMode.telemetry.addData("position: ", targetLocation);
         return targetLocation;
     }
     public int getSkystone(boolean alliance) {
