@@ -13,6 +13,8 @@ public class MM_Auto extends LinearOpMode {
 
         waitForStart();
 
+        robot.vuforia.activateTarget();
+
         robot.drivetrain.resetEncoder();
         robot.drivetrain.driveWithInches(-19,.20);
 //        robot.driveToSkystone();

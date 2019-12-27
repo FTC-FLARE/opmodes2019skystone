@@ -5,7 +5,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
-import org.firstinspires.ftc.robotcore.external.matrices.VectorF;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaTrackable;
@@ -25,6 +24,7 @@ public class MM_Vuforia {
     private boolean targetVisible = false;
     private LinearOpMode opMode = null;
     private static final double mmPerInch = 25.4;
+    private VuforiaTrackables targetsSkyStone = null;
     private VuforiaTrackable stoneTarget = null;
     private ElapsedTime runtime = new ElapsedTime();
 
@@ -42,7 +42,7 @@ public class MM_Vuforia {
 
         vuforia = ClassFactory.getInstance().createVuforia(parameters);
 
-        VuforiaTrackables targetsSkyStone = this.vuforia.loadTrackablesFromAsset("Skystone");
+        targetsSkyStone = this.vuforia.loadTrackablesFromAsset("Skystone");
 
         stoneTarget = targetsSkyStone.get(0);
         stoneTarget.setName("Stone Target");
@@ -57,7 +57,9 @@ public class MM_Vuforia {
                 .multiplied(Orientation.getRotationMatrix(EXTRINSIC, YZX, DEGREES, 0, 0, 90));
 
         ((VuforiaTrackableDefaultListener) stoneTarget.getListener()).setPhoneInformation(robotFromCamera, parameters.cameraDirection);
+    }
 
+    public void activateTarget(){
         targetsSkyStone.activate();
     }
 
