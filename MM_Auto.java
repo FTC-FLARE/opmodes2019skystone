@@ -15,11 +15,11 @@ public class MM_Auto extends LinearOpMode {
 
         robot.drivetrain.resetEncoder();
         robot.drivetrain.driveWithInches(-19,.20);
-        robot.driveToSkystone();
-        robot.collector.skystickDown();
+//        robot.driveToSkystone();
+//        robot.collector.skystickDown();
         robot.drivetrain.driveWithInches(20,.5);
         robot.drivetrain.gyroTurn(.25,90);
         robot.drivetrain.driveWithInches(36,.5);
-        robot.collector.skystickUp();
+//        robot.collector.skystickUp();
     }
 }
