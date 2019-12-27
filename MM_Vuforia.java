@@ -114,4 +114,8 @@ public class MM_Vuforia {
         }
         return skystonePosition;
     }
+
+    public OpenGLMatrix getDistanceToSkyStone() {
+        return ((VuforiaTrackableDefaultListener) stoneTarget.getListener()).getRobotLocation();
+    }
 }
