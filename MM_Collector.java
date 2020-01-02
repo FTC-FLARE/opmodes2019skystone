@@ -31,7 +31,7 @@ public class MM_Collector {
         //skystick servos are opposite each other
         redSkystick.setPosition(0);
         blueSkystick.setPosition(1);
-        alignerServo.setPosition(0);
+        alignerServo.setPosition(.5);
     }
 
     public void controlFlywheels() {
