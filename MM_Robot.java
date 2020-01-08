@@ -2,6 +2,8 @@ package org.firstinspires.ftc.teamcode.opmodes2019skystone;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
+
 import static android.os.SystemClock.sleep;
 
 public class MM_Robot {
@@ -10,6 +12,8 @@ public class MM_Robot {
     public MM_Collector collector;
     public MM_Arm arm;
     public MM_Vuforia vuforia;
+
+    OpenGLMatrix position = null;
 
     public MM_Robot(LinearOpMode opMode){
         this.opMode = opMode;
@@ -22,9 +26,27 @@ public class MM_Robot {
         vuforia = new MM_Vuforia(opMode);
     }
     public void driveToTarget(){
-        drivetrain.setMotorPowersSame(-.25);
-        while(vuforia.detectSkystone() == 0){
+        boolean targetSeen = false;
+        drivetrain.setMotorPowersSame(-.125);
+        while(opMode.opModeIsActive() && !targetSeen && drivetrain.currentPosition() > -16){
+            position = vuforia.getDistanceToSkyStone();
+            if(position != null){
+                targetSeen = true;
+            }
         }
         drivetrain.setMotorPowersSame(0);
+        if (!targetSeen) {
+            drivetrain.gyroTurn(.25,45);
+            while(opMode.opModeIsActive() && !targetSeen){
+                position = vuforia.getDistanceToSkyStone();
+                if(position != null){
+                    targetSeen = true;
+                }
+                sleep(5);
+            }
+        }
+    }
+    public void driveToSkystone(float xDistance, float yDistance){
+
     }
 }

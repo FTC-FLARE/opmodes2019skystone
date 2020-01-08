@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.opmodes2019skystone;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-// naming is (alliance color, side of field, amount of skystones, any other auto functions)
 @Autonomous(name = "MM_Skystone_Auto", group = "Mechanical Meltdown")
 public class MM_SkystoneAuto extends LinearOpMode {
     private MM_Robot robot = new MM_Robot(this);

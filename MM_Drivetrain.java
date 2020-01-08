@@ -95,6 +95,11 @@ public class MM_Drivetrain {
         return robotError;
     }
 
+    public double getAngle (){
+        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+        return angles.firstAngle;
+    }
+
     public double getSteer(double error) {
         return Range.clip(error * PROPORTIONAL_CONSTANT, -1, 1);
     }
@@ -130,6 +135,8 @@ public class MM_Drivetrain {
     }
 
     public double currentPosition(){
+        opMode.telemetry.addData("current position", LMotor.getCurrentPosition());
+        opMode.telemetry.addData("current position (calc)",LMotor.getCurrentPosition()/TICKS_PER_INCH);
         return LMotor.getCurrentPosition()/TICKS_PER_INCH;
     }
 
@@ -234,5 +241,10 @@ public class MM_Drivetrain {
         else{
             driveRightConfig(alliance);
         }
+    }
+
+    public void setMotorPowers(double leftPower, double rightPower){
+        LMotor.setPower(leftPower);
+        RMotor.setPower(rightPower);
     }
 }
