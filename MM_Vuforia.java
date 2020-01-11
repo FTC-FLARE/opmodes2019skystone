@@ -53,8 +53,8 @@ public class MM_Vuforia {
 
 
         OpenGLMatrix robotFromCamera = OpenGLMatrix
-                .translation((float) (3 * mmPerInch), (float) (-6 * mmPerInch), (float) (5 * mmPerInch))
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, YZX, DEGREES, 0, 0, 90));
+                .translation((float) (1.75 * mmPerInch), (float) (9 * mmPerInch), (float) (5 * mmPerInch))
+                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, YZX, DEGREES, 0, 90, 90));
 
         ((VuforiaTrackableDefaultListener) stoneTarget.getListener()).setPhoneInformation(robotFromCamera, parameters.cameraDirection);
     }

@@ -121,4 +121,20 @@ public class MM_Collector {
             }
         }
     }
+    public void allianceSkystickUp(boolean alliance){
+        if(alliance){
+            redSkystickUp();
+        }
+        else{
+            blueSkystickUp();
+        }
+    }
+    public void allianceSkystickDown(boolean alliance){
+        if(alliance){
+            redSkystickDown();
+        }
+        else{
+            blueSkystickDown();
+        }
+    }
 }
