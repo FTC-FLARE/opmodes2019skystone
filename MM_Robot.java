@@ -1,9 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes2019skystone;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
-
 import static android.os.SystemClock.sleep;
 
 public class MM_Robot {
@@ -15,7 +13,6 @@ public class MM_Robot {
 
     OpenGLMatrix position = null;
     boolean turn = false;
-    double mmPerInch = 25.4;
     public static final double TARGET_OFFSET = toMM(-8);
 
     public MM_Robot(LinearOpMode opMode){
@@ -51,14 +48,7 @@ public class MM_Robot {
                 sleep(50);
                 driveToTarget(alliance);
             }
-
-//            turn = true;
-//            drivetrain.gyroTurn(.25,45);
-//            position = vuforia.getDistanceToSkyStone();
-//            drivetrain.gyroTurn(.25,-45);//30 degrees is just a guess for now
-//            drivetrain.driveWithInches(toInches(Math.hypot(position.getTranslation().get(0),toMM(-18)-position.getTranslation().get(1))),.25);
-//            drivetrain.gyroTurn(.25,0);
-        }else {
+        } else {
             drivetrain.setMotorPowersSame(.25);
             while (opMode.opModeIsActive() && position.getTranslation().get(1) > toMM(-18)) {
                 position = vuforia.getDistanceToSkyStone();
@@ -85,12 +75,6 @@ public class MM_Robot {
         drivetrain.driveWithInches(toInches(-driveDistance),.125);
         drivetrain.gyroTurn(.25,0);
 
-//            opMode.telemetry.addData("x",position.getTranslation().get(0));
-//            opMode.telemetry.addData("y",position.getTranslation().get(1));
-//            opMode.telemetry.addData("xError",xError);
-//            opMode.telemetry.addData("angle",angle);
-//            opMode.telemetry.addData("drive distance",toInches(driveDistance));
-//            opMode.telemetry.update();
     }
 
     public void collectSkystone() {
@@ -102,17 +86,54 @@ public class MM_Robot {
 
     public void deliverSkystone(boolean alliance) {
         if (alliance) {
-            drivetrain.gyroTurn(.25, 90);
-            drivetrain.driveWithInches(60, .75);
-            drivetrain.gyroTurn(.25, -90);
-            drivetrain.driveWithInches(24, .75);
+            if(turn) {
+                drivetrain.gyroTurn(.25, 90);
+                drivetrain.driveWithInches(68, 1);
+                drivetrain.gyroTurn(.25, -90);
+                collector.blueSkystickUp();
+                sleep(500);
+                drivetrain.driveWithInches(12, 1);
+            }else{
+                drivetrain.gyroTurn(.25, 90);
+                drivetrain.driveWithInches(52, .75);
+                drivetrain.gyroTurn(.25, -90);
+                collector.blueSkystickUp();
+                sleep(500);
+                drivetrain.driveWithInches(12, .75);
+            }
         }else{
-            drivetrain.gyroTurn(.25, -90);
-            drivetrain.driveWithInches(60, .75);
-            drivetrain.gyroTurn(.25, 90);
-            drivetrain.driveWithInches(24, .75);
+            if (turn) {
+                drivetrain.gyroTurn(.25, -90);
+                drivetrain.driveWithInches(62, 1);
+                drivetrain.gyroTurn(.25, 90);
+                collector.blueSkystickUp();
+                sleep(500);
+                drivetrain.driveWithInches(12, 1);
+            }else{
+                drivetrain.gyroTurn(.25, -90);
+                drivetrain.driveWithInches(48, .75);
+                drivetrain.gyroTurn(.25, 90);
+                collector.blueSkystickUp();
+                sleep(500);
+                drivetrain.driveWithInches(12, .75);
+            }
         }
     }
+
+    public static double toMM(double inches){
+        return inches * 25.4;
+    }
+
+    public static double toInches(double MM){
+        return MM / 25.4;
+    }
+}
+//            opMode.telemetry.addData("x",position.getTranslation().get(0));
+//            opMode.telemetry.addData("y",position.getTranslation().get(1));
+//            opMode.telemetry.addData("xError",xError);
+//            opMode.telemetry.addData("angle",angle);
+//            opMode.telemetry.addData("drive distance",toInches(driveDistance));
+//            opMode.telemetry.update();
 
 //    public void driveCloseToSkystone(){
 //        double initialVelocity = -.05;
@@ -171,17 +192,6 @@ public class MM_Robot {
 //        drivetrain.setMotorPowersSame(0);
 //    }
 
-    public static double toMM(double inches){
-        return inches * 25.4;
-    }
-
-    public static double toInches(double MM){
-        return MM / 25.4;
-    }
-
-
-
-
 //    public boolean determineStick(boolean alliance){
 //        if (!turn) {
 //            alliance = !alliance;
@@ -190,18 +200,15 @@ public class MM_Robot {
 //    }
 //    public void driveToSkystone(float xDistance, float yDistance, boolean alliance){
 //        double driveDistance = 0;
-////        if(alliance){
-////            drivetrain.gyroTurn(.5, Math.toDegrees(Math.atan((xDistance + 9) / yDistance)));
-////            driveDistance = Math.sqrt((Math.pow(xDistance + 9,2) + Math.pow(yDistance,2)));
-////            drivetrain.driveWithInches(driveDistance,.25);
-////        } else {
-////            drivetrain.gyroTurn(.5, Math.toDegrees(Math.atan((xDistance - 9)/yDistance)));
-////            driveDistance = Math.sqrt((Math.pow(xDistance - 9,2) + Math.pow(yDistance,2)));
-////            drivetrain.driveWithInches(driveDistance,.25);
-////
-////        }
+//        if(alliance){
+//            drivetrain.gyroTurn(.5, Math.toDegrees(Math.atan((xDistance + 9) / yDistance)));
+//            driveDistance = Math.sqrt((Math.pow(xDistance + 9,2) + Math.pow(yDistance,2)));
+//            drivetrain.driveWithInches(driveDistance,.25);
+//        } else {
+//            drivetrain.gyroTurn(.5, Math.toDegrees(Math.atan((xDistance - 9)/yDistance)));
+//            driveDistance = Math.sqrt((Math.pow(xDistance - 9,2) + Math.pow(yDistance,2)));
+//            drivetrain.driveWithInches(driveDistance,.25);
+//
+//        }
 //        drivetrain.gyroTurn(.5, Math.toDegrees(Math.atan((xDistance) / yDistance)));
 //    }
-
-
-}

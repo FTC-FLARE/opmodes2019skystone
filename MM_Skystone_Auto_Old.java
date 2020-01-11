@@ -1,10 +1,12 @@
 package org.firstinspires.ftc.teamcode.opmodes2019skystone;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
-@Autonomous(name = "MM_Skystone_Auto", group = "Mechanical Meltdown")
-public class MM_SkystoneAuto extends LinearOpMode {
+@Autonomous(name = "MM_Skystone_Auto_Old", group = "Mechanical Meltdown")
+@Disabled
+public class MM_Skystone_Auto_Old extends LinearOpMode {
     private MM_Robot robot = new MM_Robot(this);
 
     public void runOpMode() {
