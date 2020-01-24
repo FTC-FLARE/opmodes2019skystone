@@ -20,6 +20,7 @@ public class MM_Drivetrain {
     private Servo foundationServo = null;
 
     private final double P_COEFF = 0.02;
+    private final double D_COEFF = 0.001;
     private final double HEADING_THRESHOLD = 1;
     private final double MINIMUM_POWER = .075;
     private final double WHEEL_DIAMETER = 4.3;
@@ -59,14 +60,18 @@ public class MM_Drivetrain {
     public void gyroTurn(double speed, double angle) {
         double error = angle - getAngle();
         double power;
+        double derivative;
+        double previousError = 0;
         while (opMode.opModeIsActive() && (Math.abs(error) > HEADING_THRESHOLD)){
+            opMode.resetStartTime();
             error = angle - getAngle();
             if(error > 180){
                 error = error - 360;
             }else if(error < -180) {
                 error = error + 360;
             }
-            power = speed * (Math.abs(error) * P_COEFF);
+            derivative = (error - previousError) / opMode.getRuntime();
+            power = speed * (Math.abs(error) * P_COEFF) + (derivative * D_COEFF);
             if(Math.abs(power) < MINIMUM_POWER){
                 power = MINIMUM_POWER;
             }
@@ -75,9 +80,11 @@ public class MM_Drivetrain {
             }
             LMotor.setPower(-power);
             RMotor.setPower(power);
+            previousError = error;
             opMode.telemetry.addData("Actual Angle", getAngle());
             opMode.telemetry.addData("Target Angle",angle);
             opMode.telemetry.addData("Error",error);
+            opMode.telemetry.addData("Derivative",derivative * D_COEFF);
             opMode.telemetry.addData("Left Power",LMotor.getPower());
             opMode.telemetry.addData("Right Power",RMotor.getPower());
             opMode.telemetry.update();
