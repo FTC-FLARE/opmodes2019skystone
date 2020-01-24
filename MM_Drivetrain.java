@@ -6,6 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
@@ -18,8 +19,9 @@ public class MM_Drivetrain {
     private DcMotor RMotor = null;
     private Servo foundationServo = null;
 
-    private final double PROPORTIONAL_CONSTANT = 0.02;
+    private final double P_COEFF = 0.02;
     private final double HEADING_THRESHOLD = 1;
+    private final double MINIMUM_POWER = .075;
     private final double WHEEL_DIAMETER = 4.3;
     private final double TICKS_PER_ROTATION = 723.24;
     private final double TICKS_PER_INCH = TICKS_PER_ROTATION / (WHEEL_DIAMETER * 3.14);
@@ -37,6 +39,8 @@ public class MM_Drivetrain {
         RMotor = opMode.hardwareMap.get(DcMotor.class, "RMotor");
         LMotor.setDirection(DcMotor.Direction.REVERSE);
         RMotor.setDirection(DcMotor.Direction.FORWARD);
+        LMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE); //don't forget that the brakes are on
+        RMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         resetEncoder();
         setEncoderTargets(0, 0);
 
@@ -53,55 +57,38 @@ public class MM_Drivetrain {
     }
 
     public void gyroTurn(double speed, double angle) {
-        runWithEncoder();
-        while (opMode.opModeIsActive() && !onHeading(speed, angle)) {
+        double error = angle - getAngle();
+        double power;
+        while (opMode.opModeIsActive() && (Math.abs(error) > HEADING_THRESHOLD)){
+            error = angle - getAngle();
+            if(error > 180){
+                error = error - 360;
+            }else if(error < -180) {
+                error = error + 360;
+            }
+            power = speed * (Math.abs(error) * P_COEFF);
+            if(Math.abs(power) < MINIMUM_POWER){
+                power = MINIMUM_POWER;
+            }
+            if (error < 0) {
+                power = -power;
+            }
+            LMotor.setPower(-power);
+            RMotor.setPower(power);
+            opMode.telemetry.addData("Actual Angle", getAngle());
+            opMode.telemetry.addData("Target Angle",angle);
+            opMode.telemetry.addData("Error",error);
+            opMode.telemetry.addData("Left Power",LMotor.getPower());
+            opMode.telemetry.addData("Right Power",RMotor.getPower());
+            opMode.telemetry.update();
         }
+        LMotor.setPower(0);
+        RMotor.setPower(0);
     }
 
-    boolean onHeading(double speed, double angle) {
-        double error;
-        double steer;
-        boolean onTarget = false;
-        double leftSpeed;
-        double rightSpeed;
-
-        error = getError(angle);
-
-        if (Math.abs(error) <= HEADING_THRESHOLD) {
-            leftSpeed = 0.0;
-            rightSpeed = 0.0;
-            onTarget = true;
-        } else {
-            steer = getSteer(error);
-            rightSpeed = speed * steer;
-            leftSpeed = -rightSpeed;
-        }
-
-        LMotor.setPower(leftSpeed);
-        RMotor.setPower(rightSpeed);
-
-        return onTarget;
-    }
-
-    public double getError(double targetAngle) {
-
-        double robotError;
-
-        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-
-        robotError = targetAngle - angles.firstAngle;
-        while (robotError > 180) robotError -= 360;
-        while (robotError <= -180) robotError += 360;
-        return robotError;
-    }
-
-    public double getAngle (){
-        angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        return angles.firstAngle;
-    }
-
-    public double getSteer(double error) {
-        return Range.clip(error * PROPORTIONAL_CONSTANT, -1, 1);
+    public double getAngle(){
+        double angle = imu.getAngularOrientation(AxesReference.INTRINSIC,AxesOrder.ZYX,AngleUnit.DEGREES).firstAngle;
+        return angle;
     }
 
     public void driveWithInches(double inches, double speed) {

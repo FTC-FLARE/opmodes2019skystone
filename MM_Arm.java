@@ -24,6 +24,7 @@ public class MM_Arm {
 
         this.opMode = opMode;
 
+
         armMotor = opMode.hardwareMap.get(DcMotor.class, "armMotor");
         gripperServo = opMode.hardwareMap.get(Servo.class, "gripServo");
         wristServo = opMode.hardwareMap.get(Servo.class, "wristServo");
