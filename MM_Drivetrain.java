@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.opmodes2019skystone;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.Range;
 
@@ -19,18 +20,26 @@ public class MM_Drivetrain {
     private DcMotor RMotor = null;
     private Servo foundationServo = null;
 
-    private final double P_COEFF = 0.02;
-    private final double D_COEFF = 0.001;
+    private final double P_COEFF = 0.025;  //first attempt .02, PI method .025
+    private final double D_COEFF = 0.0025;  //first attempt .0015, PI method .0025
+    private final double I_COEFF = 0.00125;  //first attempt .001, PI method .0025
     private final double HEADING_THRESHOLD = 1;
     private final double MINIMUM_POWER = .075;
     private final double WHEEL_DIAMETER = 4.3;
     private final double TICKS_PER_ROTATION = 723.24;
     private final double TICKS_PER_INCH = TICKS_PER_ROTATION / (WHEEL_DIAMETER * 3.14);
 
+    double previousError = 0;
+    double derivative;
+    double integral = 0;
+    double deltaT = 0;
+
     private LinearOpMode opMode = null;
-    private Orientation angles;
     private boolean isHandled = false;
     private boolean isFast = true;
+
+    private DistanceSensor leftRange;
+    private DistanceSensor rightRange;
 
     public MM_Drivetrain(LinearOpMode opMode) {
         this.opMode = opMode;
@@ -57,40 +66,75 @@ public class MM_Drivetrain {
         foundationServo.setPosition(0);
     }
 
-    public void gyroTurn(double speed, double angle) {
-        double error = angle - getAngle();
+    public void gyroTurnPID(double speed, double angle) {
         double power;
-        double derivative;
-        double previousError = 0;
+        double error = angle - getAngle();
+        opMode.resetStartTime();
         while (opMode.opModeIsActive() && (Math.abs(error) > HEADING_THRESHOLD)){
-            opMode.resetStartTime();
-            error = angle - getAngle();
-            if(error > 180){
-                error = error - 360;
-            }else if(error < -180) {
-                error = error + 360;
-            }
-            derivative = (error - previousError) / opMode.getRuntime();
-            power = speed * (Math.abs(error) * P_COEFF) + (derivative * D_COEFF);
-            if(Math.abs(power) < MINIMUM_POWER){
-                power = MINIMUM_POWER;
+            error = correctError(error);
+            power = PIDcontrol(speed,error);
+            if((power < MINIMUM_POWER && power > 0) || (power > -MINIMUM_POWER && power < 0)) {
+                if (power > 0){
+                    power = MINIMUM_POWER;
+                }else{
+                    power = -MINIMUM_POWER;
+                }
             }
             if (error < 0) {
                 power = -power;
             }
             LMotor.setPower(-power);
             RMotor.setPower(power);
-            previousError = error;
             opMode.telemetry.addData("Actual Angle", getAngle());
             opMode.telemetry.addData("Target Angle",angle);
             opMode.telemetry.addData("Error",error);
-            opMode.telemetry.addData("Derivative",derivative * D_COEFF);
             opMode.telemetry.addData("Left Power",LMotor.getPower());
             opMode.telemetry.addData("Right Power",RMotor.getPower());
             opMode.telemetry.update();
+            error = angle - getAngle();
         }
         LMotor.setPower(0);
         RMotor.setPower(0);
+    }
+
+    public double PIDcontrol(double speed, double error){
+        double power;
+
+        deltaT = opMode.getRuntime();
+        integral = integral + (error * deltaT);
+        derivative = (error - previousError) / deltaT;
+        opMode.resetStartTime();
+        power = speed * (Math.abs(error) * P_COEFF) + (derivative * D_COEFF) + (integral * I_COEFF);
+        previousError = error;
+        return power;
+    }
+
+
+
+    public void gyroTurn(double speed, double angle){
+        double error = angle - getAngle();
+        double power;
+        while (opMode.opModeIsActive() && (Math.abs(error) > HEADING_THRESHOLD)) {
+            error = correctError(angle - getAngle());
+            power = speed * (Math.pow((Math.abs(error) * .0125), 2) + MINIMUM_POWER);
+            if (error < 0) {
+                power = -power;
+            }
+            LMotor.setPower(-power);
+            RMotor.setPower(power);
+
+        }
+        LMotor.setPower(0);
+        RMotor.setPower(0);
+    }
+
+    private double correctError(double error) {
+        if(error > 180){
+            error = error - 360;
+        }else if(error < -180) {
+            error = error + 360;
+        }
+        return error;
     }
 
     public double getAngle(){
