@@ -29,7 +29,7 @@ public class MM_Collector {
         flywheelRight.setDirection(DcMotor.Direction.REVERSE);
 
         //skystick servos are opposite each other
-        redSkystick.setPosition(0);
+        redSkystick.setPosition(1);
         blueSkystick.setPosition(1);
         alignerServo.setPosition(.5);
     }
@@ -44,7 +44,7 @@ public class MM_Collector {
         }
     }
 
-    private void powerFlywheels(double power) {
+    public void powerFlywheels(double power) {
         flywheelLeft.setPower(power);
         flywheelRight.setPower(power);
 
@@ -60,34 +60,34 @@ public class MM_Collector {
 
     public void moveRedSkystick() {
         if (opMode.gamepad2.y) {
-            redSkystick.setPosition(1);
-        } else {
             redSkystick.setPosition(0);
+        } else {
+            redSkystick.setPosition(1);
         }
     }
 
     public void moveBlueSkystick() {
         if (opMode.gamepad2.y) {
-            blueSkystick.setPosition(0);
-        } else {
             blueSkystick.setPosition(1);
+        } else {
+            blueSkystick.setPosition(0);
         }
     }
 
     public void redSkystickDown() {
-        redSkystick.setPosition(1);
-    }
-
-    public void redSkystickUp() {
         redSkystick.setPosition(0);
     }
 
+    public void redSkystickUp() {
+        redSkystick.setPosition(1);
+    }
+
     public void blueSkystickDown() {
-        blueSkystick.setPosition(0);
+        blueSkystick.setPosition(1);
     }
 
     public void blueSkystickUp() {
-        blueSkystick.setPosition(1);
+        blueSkystick.setPosition(0);
     }
 
     public void skystickUp(boolean alliance, int stonePosition) {
@@ -119,22 +119,6 @@ public class MM_Collector {
             }else{
                 blueSkystickDown();
             }
-        }
-    }
-    public void allianceSkystickUp(boolean alliance){
-        if(alliance){
-            redSkystickUp();
-        }
-        else{
-            blueSkystickUp();
-        }
-    }
-    public void allianceSkystickDown(boolean alliance){
-        if(alliance){
-            redSkystickDown();
-        }
-        else{
-            blueSkystickDown();
         }
     }
 }

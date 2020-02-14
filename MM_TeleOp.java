@@ -10,6 +10,7 @@ public class MM_TeleOp extends LinearOpMode {
     public void runOpMode() {
         robot.init();
         robot.drivetrain.runWithoutEncoder();
+        robot.drivetrain.unbrake();
 
         telemetry.addLine("Press Play to Start");
         telemetry.update();

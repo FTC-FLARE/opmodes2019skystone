@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.opmodes2019skystone;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.vuforia.CameraDevice;
 
@@ -12,6 +13,7 @@ import static org.firstinspires.ftc.robotcore.external.navigation.AxesOrder.XYZ;
 import static org.firstinspires.ftc.robotcore.external.navigation.AxesReference.EXTRINSIC;
 
 @Autonomous (name = "MM_Skystone_Auto", group = "Mechanical Meltdown")
+@Disabled
 public class MM_Skystone_Auto extends LinearOpMode {
     private MM_Robot robot = new MM_Robot(this);
     OpenGLMatrix position = null;
@@ -55,19 +57,3 @@ public class MM_Skystone_Auto extends LinearOpMode {
         robot.deliverSkystone(alliance);
     }
 }
-
-//        while(opModeIsActive()){
-//            position = robot.vuforia.getDistanceToSkyStone();
-//            if (position != null) {
-//                xDistance = position.getTranslation().get(0);
-//                yDistance = position.getTranslation().get(1);
-//                double errorX = xDistance - (targetOffset * 25.4);
-//                telemetry.addData("x", xDistance / 25.4);
-//                telemetry.addData("y", yDistance / 25.4);
-//                telemetry.addData("error x", errorX / 25.4);
-//            }else{
-//                telemetry.addLine("Lost Target :(");
-//            }
-//            telemetry.update();
-//
-//        }

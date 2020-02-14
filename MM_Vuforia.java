@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode.opmodes2019skystone;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
+import com.vuforia.CameraDevice;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
@@ -53,10 +54,11 @@ public class MM_Vuforia {
 
 
         OpenGLMatrix robotFromCamera = OpenGLMatrix
-                .translation((float) (1.75 * mmPerInch), (float) (9 * mmPerInch), (float) (5 * mmPerInch))
-                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, YZX, DEGREES, 0, 90, 90));
+                .translation((float) (-2 * mmPerInch), (float) (-6.5 * mmPerInch), (float) (5 * mmPerInch))
+                .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, -90, 0, 180));
 
         ((VuforiaTrackableDefaultListener) stoneTarget.getListener()).setPhoneInformation(robotFromCamera, parameters.cameraDirection);
+        CameraDevice.getInstance().setField("zoom", "55"); // used to be 50
     }
 
     public void activateTarget(){
@@ -68,37 +70,7 @@ public class MM_Vuforia {
         targetVisible = false;
         if (((VuforiaTrackableDefaultListener) stoneTarget.getListener()).isVisible()) {
             targetLocation = 1;
-
-//            OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener) stoneTarget.getListener()).getUpdatedRobotLocation();
-//            if (robotLocationTransform != null) {
-//                lastLocation = robotLocationTransform;
-//            }
-//        }
-//
-//
-//        if (targetVisible) {
-//            VectorF translation = lastLocation.getTranslation();
-//            opMode.telemetry.addData("Pos (in)", "{X, Y} = %.1f, %.1f",translation.get(0) / mmPerInch, translation.get(1) / mmPerInch);
-//            opMode.telemetry.update();
-//        } else {
-//            targetLocation = 0;
-//        }
-//
-//        if (targetVisible == true) {
-//            OpenGLMatrix robotLocationTransform = ((VuforiaTrackableDefaultListener) stoneTarget.getListener()).getUpdatedRobotLocation();
-//            if (robotLocationTransform != null) {
-//                lastLocation = robotLocationTransform;
-//            }
-//
-//            VectorF translation = lastLocation.getTranslation();
-//
-//            if (translation.get(0) / mmPerInch < 5) {
-//                targetLocation = 2;
-//            } else {
-//                targetLocation = 1;
-//            }
         }
-////        opMode.telemetry.addData("position: ", targetLocation);
         return targetLocation;
     }
 
