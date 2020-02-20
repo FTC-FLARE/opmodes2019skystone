@@ -28,6 +28,8 @@ public class MM_Drivetrain {
     private DcMotor LMotor = null;
     private DcMotor RMotor = null;
     private Servo foundationServo = null;
+    private Servo rightFoundationGrabber = null;
+    private Servo leftFoundationGrabber = null;
 
     private final double P_COEFF = 0.025;  //first attempt .02, PI method .025
     private final double D_COEFF = 0.0025;  //first attempt .0015, PI method .0025
@@ -81,6 +83,11 @@ public class MM_Drivetrain {
         //init servo
         foundationServo = opMode.hardwareMap.get(Servo.class, "foundationServo");
         foundationServo.setPosition(0);
+
+        rightFoundationGrabber = opMode.hardwareMap.get(Servo.class, "rightFoundGrab");
+        rightFoundationGrabber.setPosition(0);
+        leftFoundationGrabber = opMode.hardwareMap.get(Servo.class, "leftFoundGrab");
+        leftFoundationGrabber.setPosition(1);
     }
 
     public void rangeTest(){
@@ -336,8 +343,12 @@ public class MM_Drivetrain {
     public void controlFoundation(){
         if (opMode.gamepad2.a) {
             foundationServo.setPosition(1);
+            rightFoundationGrabber.setPosition(1);
+            leftFoundationGrabber.setPosition(0);
         } else {
             foundationServo.setPosition(0);
+            rightFoundationGrabber.setPosition(0);
+            leftFoundationGrabber.setPosition(1);
         }
     }
 
