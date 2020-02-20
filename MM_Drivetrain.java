@@ -36,13 +36,13 @@ public class MM_Drivetrain {
     private final double I_COEFF = 0.00125;  //first attempt .001, PI method .0025
     public static final double HEADING_THRESHOLD = .75;
     private final double RANGE_THRESHOLD = .25;
-    private final double MINIMUM_POWER = .075;
+    private final double MINIMUM_POWER = 0.05;
     private final double WHEEL_DIAMETER = 4.3;
     private final double TICKS_PER_ROTATION = 537.6;
     private final double TICKS_PER_INCH = TICKS_PER_ROTATION / (WHEEL_DIAMETER * 3.14);
 
     double previousError = 0;
-    double derivative;
+    double derivative = 0;
     double integral = 0;
     double deltaT = 0;
 
@@ -53,8 +53,6 @@ public class MM_Drivetrain {
 
     private DistanceSensor leftRange;
     private DistanceSensor rightRange;
-    private ModernRoboticsI2cRangeSensor MRleftRange;
-    private ModernRoboticsI2cRangeSensor MRrightRange;
 
     public MM_Drivetrain(LinearOpMode opMode) {
         this.opMode = opMode;
@@ -77,8 +75,6 @@ public class MM_Drivetrain {
         imu.initialize(parameters);
         leftRange = opMode.hardwareMap.get(DistanceSensor.class,"leftRange");
         rightRange = opMode.hardwareMap.get(DistanceSensor.class,"rightRange");
-        MRleftRange = opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class,"MRleftRange");
-        MRrightRange = opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "MRrightRange");
 
         //init servo
         foundationServo = opMode.hardwareMap.get(Servo.class, "foundationServo");
@@ -90,13 +86,6 @@ public class MM_Drivetrain {
         leftFoundationGrabber.setPosition(1);
     }
 
-    public void rangeTest(){
-        while (opMode.opModeIsActive()) {
-            opMode.telemetry.addData("Left Range", MRleftRange.getDistance(DistanceUnit.INCH));
-            opMode.telemetry.addData("Right Range", MRrightRange.getDistance(DistanceUnit.INCH));
-            opMode.telemetry.update();
-        }
-    }
     public void unbrake(){
         LMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         RMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
@@ -146,13 +135,14 @@ public class MM_Drivetrain {
 
 
 
-    public void gyroTurn(double speed, double angle){
+    public void gyroTurn(double speed, double angle){ //180 degrees = .25 speed less than 45 = 1 speed
         runWithEncoder();
         double error = angle - getAngle();
         double power;
         while (opMode.opModeIsActive() && (Math.abs(error) > HEADING_THRESHOLD)) {
             error = correctError(angle - getAngle());
-            power = exponentialControl(error,speed,.0075,2);
+//            power = exponentialControl(error,speed,.0075,2);
+            power = exponentialControl(error,speed,.0125,3);
             if (error < 0) {
                 power = -power;
             }
@@ -165,7 +155,11 @@ public class MM_Drivetrain {
     }
 
     public double exponentialControl(double error, double speed, double coeff, int exponent){
-        return speed * (Math.pow((Math.abs(error)*coeff),exponent) + MINIMUM_POWER);
+        double power = speed * (Math.pow((Math.abs(error)*coeff),exponent));
+        if (power < MINIMUM_POWER){
+            power = MINIMUM_POWER;
+        }
+        return power;
     }
 
     public double correctError(double error) {
@@ -350,6 +344,16 @@ public class MM_Drivetrain {
             rightFoundationGrabber.setPosition(0);
             leftFoundationGrabber.setPosition(1);
         }
+    }
+
+    public void grabFoundation(){
+        rightFoundationGrabber.setPosition(1);
+        leftFoundationGrabber.setPosition(0);
+    }
+
+    public void releaseFoundation(){
+        rightFoundationGrabber.setPosition(0);
+        leftFoundationGrabber.setPosition(1);
     }
 
     public void runToPosition() {

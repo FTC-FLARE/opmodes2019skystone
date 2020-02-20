@@ -99,7 +99,7 @@ public class MM_Robot {
     public void alignToSkystone(){
         position = vuforia.getDistanceToSkyStone();
         drivetrain.gyroTurn(1,-90);
-        double xError = position.getTranslation().get(0);
+        double xError = position.getTranslation().get(0) + toMM(1);
         drivetrain.driveWithInches(toInches(xError),.25);
     }
 
@@ -234,6 +234,25 @@ public class MM_Robot {
                 sleep(500);
                 drivetrain.driveWithInches(12, .75);
             }
+        }
+    }
+
+    public void autoCollect(){
+        opMode.resetStartTime();
+        arm.autoArm(-1000);
+        collector.powerFlywheels(-1);
+        drivetrain.grabFoundation();
+        drivetrain.setMotorPowersSame(.3);
+        while(opMode.opModeIsActive() && collector.getCollectorDistance() > 3.125 || opMode.getRuntime() < 1){
+
+        }
+        double stopTime = opMode.getRuntime();
+        drivetrain.setMotorPowersSame(0);
+        collector.powerFlywheels(0);
+        collector.autoAlignStone();
+        while(opMode.opModeIsActive()){
+            opMode.telemetry.addData("Stop Time", stopTime);
+            opMode.telemetry.update();
         }
     }
 

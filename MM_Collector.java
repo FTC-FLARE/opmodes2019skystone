@@ -2,7 +2,10 @@ package org.firstinspires.ftc.teamcode.opmodes2019skystone;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
+
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 public class MM_Collector {
 
@@ -15,6 +18,8 @@ public class MM_Collector {
     private Servo redSkystick = null;
     private Servo blueSkystick = null;
 
+    private DistanceSensor collectorRange;
+
     public MM_Collector(LinearOpMode opMode) {
         this.opMode = opMode;
 
@@ -23,6 +28,7 @@ public class MM_Collector {
         alignerServo = opMode.hardwareMap.get(Servo.class, "alignerServo");
         redSkystick = opMode.hardwareMap.get(Servo.class, "redSkystick");
         blueSkystick = opMode.hardwareMap.get(Servo.class, "blueSkystick");
+        collectorRange = opMode.hardwareMap.get(DistanceSensor.class, "collectorRange");
 
 
         flywheelLeft.setDirection(DcMotor.Direction.FORWARD);
@@ -33,6 +39,17 @@ public class MM_Collector {
         blueSkystick.setPosition(1);
         alignerServo.setPosition(.5);
     }
+    public void rangeTest(){
+        while (opMode.opModeIsActive()) {
+            opMode.telemetry.addData("collector range",collectorRange.getDistance(DistanceUnit.INCH));
+            opMode.telemetry.update();
+        }
+    }
+
+    public double getCollectorDistance(){
+        return collectorRange.getDistance(DistanceUnit.INCH);
+    }
+
 
     public void controlFlywheels() {
         if (opMode.gamepad1.left_bumper) {
@@ -56,6 +73,13 @@ public class MM_Collector {
         } else {
             alignerServo.setPosition(.5);
         }
+    }
+
+    public void autoAlignStone(){
+        alignerServo.setPosition(1);
+        opMode.sleep(500);
+        alignerServo.setPosition(.5);
+        opMode.sleep(250);
     }
 
     public void moveRedSkystick() {
