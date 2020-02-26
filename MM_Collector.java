@@ -47,7 +47,16 @@ public class MM_Collector {
     }
 
     public double getCollectorDistance(){
-        return collectorRange.getDistance(DistanceUnit.INCH);
+        double distance = 0;
+        if (!(collectorRange.getDistance(DistanceUnit.INCH) < Double.MAX_VALUE)){
+            distance = 100;
+        }
+        else{
+            distance = collectorRange.getDistance(DistanceUnit.INCH);
+        }
+        opMode.telemetry.addData("distance",distance);
+        opMode.telemetry.update();
+        return distance;
     }
 
 

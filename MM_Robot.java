@@ -1,9 +1,12 @@
 package org.firstinspires.ftc.teamcode.opmodes2019skystone;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.vuforia.CameraDevice;
 
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+
 import static android.os.SystemClock.sleep;
 
 public class MM_Robot {
@@ -238,21 +241,40 @@ public class MM_Robot {
     }
 
     public void autoCollect(){
+        double range = 0;
         opMode.resetStartTime();
+        while(opMode.opModeIsActive() && opMode.getRuntime() < 1){
+            collector.getCollectorDistance();
+            opMode.telemetry.addData("distance:", collector.getCollectorDistance());
+            opMode.telemetry.update();
+        }
         arm.autoArm(-1000);
         collector.powerFlywheels(-1);
-        drivetrain.grabFoundation();
         drivetrain.setMotorPowersSame(.3);
-        while(opMode.opModeIsActive() && collector.getCollectorDistance() > 3.125 || opMode.getRuntime() < 1){
-
+        while(opMode.opModeIsActive() && collector.getCollectorDistance() > 8){
+            range = collector.getCollectorDistance();
         }
-        double stopTime = opMode.getRuntime();
         drivetrain.setMotorPowersSame(0);
+        consistentCollect();
         collector.powerFlywheels(0);
-        collector.autoAlignStone();
-        while(opMode.opModeIsActive()){
-            opMode.telemetry.addData("Stop Time", stopTime);
+        while (opMode.opModeIsActive()){
+            opMode.telemetry.addData("current range",collector.getCollectorDistance());
+            opMode.telemetry.addData("stopping range", range);
             opMode.telemetry.update();
+        }
+    }
+
+    public void consistentCollect() {
+        if(collector.getCollectorDistance() < 2.6){
+            collector.autoAlignStone();
+        }else{
+            collector.powerFlywheels(1);
+            sleep(250);
+            collector.powerFlywheels(-1);
+            opMode.resetStartTime();
+            while (opMode.opModeIsActive() && opMode.getRuntime() <.5){
+            }
+            consistentCollect();
         }
     }
 
