@@ -21,6 +21,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 
 import static android.os.SystemClock.sleep;
+import static org.firstinspires.ftc.teamcode.opmodes2019skystone.MM_Robot.toMM;
 
 
 public class MM_Drivetrain {
@@ -51,8 +52,9 @@ public class MM_Drivetrain {
     private boolean isFast = true;
     OpenGLMatrix position = null;
 
-    private DistanceSensor leftRange;
-    private DistanceSensor rightRange;
+    private ModernRoboticsI2cRangeSensor leftRange;
+    private ModernRoboticsI2cRangeSensor rightRange;
+    private ModernRoboticsI2cRangeSensor backRange;
 
     public MM_Drivetrain(LinearOpMode opMode) {
         this.opMode = opMode;
@@ -73,8 +75,9 @@ public class MM_Drivetrain {
         parameters.calibrationDataFile = "BNO055IMUCalibration.json";
         imu = opMode.hardwareMap.get(BNO055IMU.class, "imu");
         imu.initialize(parameters);
-        leftRange = opMode.hardwareMap.get(DistanceSensor.class,"leftRange");
-        rightRange = opMode.hardwareMap.get(DistanceSensor.class,"rightRange");
+        leftRange = opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class,"leftRange");
+        rightRange = opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class,"rightRange");
+        backRange = opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "backRange");
 
         //init servo
         foundationServo = opMode.hardwareMap.get(Servo.class, "foundationServo");
@@ -140,7 +143,8 @@ public class MM_Drivetrain {
         double error = angle - getAngle();
         double power;
         while (opMode.opModeIsActive() && (Math.abs(error) > HEADING_THRESHOLD)) {
-            error = correctError(angle - getAngle());
+            double currentAngle = getAngle();
+            error = correctError(angle - currentAngle);
 //            power = exponentialControl(error,speed,.0075,2);
             power = exponentialControl(error,speed,.0125,3);
             if (error < 0) {
@@ -149,6 +153,9 @@ public class MM_Drivetrain {
             LMotor.setPower(-power);
             RMotor.setPower(power);
 
+            opMode.telemetry.addData("current angle",currentAngle);
+            opMode.telemetry.addData("error",error);
+            opMode.telemetry.update();
         }
         LMotor.setPower(0);
         RMotor.setPower(0);
@@ -161,6 +168,11 @@ public class MM_Drivetrain {
         }
         return power;
     }
+
+    public double gyroDriveControl(double error, double speed, double coeff, int exponent){
+        return speed * (Math.pow((Math.abs(error)*coeff),exponent));
+    }
+
 
     public double correctError(double error) {
         if(error > 180){
@@ -177,39 +189,36 @@ public class MM_Drivetrain {
     }
 
     public void driveToRange(double speed, double inches){
-        double leftError = leftRange.getDistance(DistanceUnit.INCH) - inches;
-        double rightError = rightRange.getDistance(DistanceUnit.INCH) - inches;
-        double leftPower;
-        double rightPower;
-        while (opMode.opModeIsActive() && (Math.abs(leftError) > RANGE_THRESHOLD || Math.abs(rightError) > RANGE_THRESHOLD)){
-            leftError = leftRange.getDistance(DistanceUnit.INCH) - inches;
-            rightError = rightRange.getDistance(DistanceUnit.INCH) - inches;
+        double error = leftRange.getDistance(DistanceUnit.INCH) - inches;
+        double power = 0;
+        while (opMode.opModeIsActive() && (Math.abs(error) > RANGE_THRESHOLD)){
+            error = backRange.getDistance(DistanceUnit.INCH) - inches;
 
-            if(Math.abs(leftError) > RANGE_THRESHOLD){
-                leftPower = exponentialControl(leftError, speed, .04, 2);
+            if(Math.abs(error) > RANGE_THRESHOLD){
+                power = exponentialControl(error, speed, .04, 2);
             }else{
-                leftPower = 0;
-            }
-            if(Math.abs(rightError) > RANGE_THRESHOLD) {
-                rightPower = exponentialControl(rightError, speed, .04, 2);
-            }else{
-                rightPower = 0;
+                power = 0;
             }
 
-            if (leftError < 0) leftPower = -leftPower;
-            if (rightError < 0) rightPower = -rightPower;
+            if (error < 0) power = -power;
 
-            RMotor.setPower(-leftPower);// the reason the power is negative is because the range sensors are on the back
-            LMotor.setPower(-rightPower);
-
-            opMode.telemetry.addData("left power",leftPower);
-            opMode.telemetry.addData("left error",leftError);
-            opMode.telemetry.addData("right power", rightPower);
-            opMode.telemetry.addData("right error", rightError);
-            opMode.telemetry.update();
+            RMotor.setPower(-power);// the reason the power is negative is because the range sensors are on the back
+            LMotor.setPower(-power);
         }
         LMotor.setPower(0);
         RMotor.setPower(0);
+    }
+
+    public double getBackRange(){
+        return backRange.getDistance(DistanceUnit.INCH);
+    }
+
+    public double getRightRange(){
+        return rightRange.getDistance(DistanceUnit.INCH);
+    }
+
+    public double getLeftRange(){
+        return leftRange.getDistance(DistanceUnit.INCH);
     }
 
     public void driveWithInches(double inches, double speed) {
@@ -269,51 +278,48 @@ public class MM_Drivetrain {
 
 
     public void gyroDrive(double inches, double angle, double speed){
-        int newLeftTarget;
-        int newRightTarget;
-        double error = angle - getAngle();
+        double error = 0;
+        double driveError = 0;
+        double driveSpeed = speed;
 
         runWithEncoder();
-        runToPosition();
 
-        newLeftTarget = LMotor.getCurrentPosition() + (int) (inches * TICKS_PER_INCH);
-        newRightTarget = RMotor.getCurrentPosition() + (int) (inches * TICKS_PER_INCH);
-        LMotor.setTargetPosition(newLeftTarget);
-        RMotor.setTargetPosition(newRightTarget);
-
-        while (opMode.opModeIsActive() && (RMotor.isBusy() || LMotor.isBusy())) {
+        while (opMode.opModeIsActive() && Math.abs(currentPosition()) < Math.abs(inches)){
             error = correctError(angle - getAngle());
-            double power = exponentialControl(error,speed,.0125,2);
-            if (error < 0) {
+            driveError = inches - currentPosition();
+            double power = gyroDriveControl(error,speed,.005,1);
+            if (driveError < 0) {
+                driveSpeed = -speed;
+            }
+            if (error < 0){
                 power = -power;
             }
-            LMotor.setPower(speed-power);
-            RMotor.setPower(speed+power);
+            LMotor.setPower(driveSpeed-power);
+            RMotor.setPower(driveSpeed+power);
             opMode.telemetry.addData("Angle:", getAngle());
             opMode.telemetry.addData("Error:", error);
+            opMode.telemetry.addData("drive error",driveError);
+            opMode.telemetry.addData("speed", speed);
+            opMode.telemetry.addData("power", power);
             opMode.telemetry.addData("left power", LMotor.getPower());
             opMode.telemetry.addData("right power", RMotor.getPower());
-            opMode.telemetry.addData("left encoder:", LMotor.getCurrentPosition());
-            opMode.telemetry.addData("right encoder:", RMotor.getCurrentPosition());
-            opMode.telemetry.addData("target Position:", LMotor.getTargetPosition());
             opMode.telemetry.update();
         }
         LMotor.setPower(0);
         RMotor.setPower(0);
     }
 
+
+
     public void setMotorPowersSame(double power){
         LMotor.setPower(power);
         RMotor.setPower(power);
-        opMode.telemetry.addData("left encoder",LMotor.getCurrentPosition());
-        opMode.telemetry.addData("right encoder", RMotor.getCurrentPosition());
-        opMode.telemetry.update();
     }
 
     public double currentPosition(){
         opMode.telemetry.addData("current position", LMotor.getCurrentPosition());
         opMode.telemetry.addData("current position (calc)",LMotor.getCurrentPosition()/TICKS_PER_INCH);
-        return LMotor.getCurrentPosition()/TICKS_PER_INCH;
+        return (LMotor.getCurrentPosition()/TICKS_PER_INCH + RMotor.getCurrentPosition()/TICKS_PER_INCH)/2;
     }
 
     public void driveWithSticks() {

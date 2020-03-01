@@ -17,6 +17,7 @@ public class MM_Collector {
     private Servo alignerServo = null;
     private Servo redSkystick = null;
     private Servo blueSkystick = null;
+    private Servo pokerServo = null;
 
     private DistanceSensor collectorRange;
 
@@ -26,6 +27,7 @@ public class MM_Collector {
         flywheelLeft = opMode.hardwareMap.get(DcMotor.class, "flywheelLeft");
         flywheelRight = opMode.hardwareMap.get(DcMotor.class, "flywheelRight");
         alignerServo = opMode.hardwareMap.get(Servo.class, "alignerServo");
+        pokerServo = opMode.hardwareMap.get(Servo.class, "Lance");
         redSkystick = opMode.hardwareMap.get(Servo.class, "redSkystick");
         blueSkystick = opMode.hardwareMap.get(Servo.class, "blueSkystick");
         collectorRange = opMode.hardwareMap.get(DistanceSensor.class, "collectorRange");
@@ -35,6 +37,7 @@ public class MM_Collector {
         flywheelRight.setDirection(DcMotor.Direction.REVERSE);
 
         //skystick servos are opposite each other
+        pokerServo.setPosition(1);
         redSkystick.setPosition(1);
         blueSkystick.setPosition(1);
         alignerServo.setPosition(.5);
@@ -68,6 +71,14 @@ public class MM_Collector {
         } else {
             powerFlywheels(0);
         }
+    }
+
+    public void pokerServoDown(){
+        pokerServo.setPosition(0.1);
+    }
+
+    public void pokerServoUp(){
+        pokerServo.setPosition(1);
     }
 
     public void powerFlywheels(double power) {

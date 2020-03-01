@@ -41,5 +41,6 @@ public class MM_TeleOp extends LinearOpMode {
         robot.collector.controlFlywheels();
         robot.collector.moveBlueSkystick();
         robot.collector.moveRedSkystick();
+        robot.teleOpAutoCollect();
     }
 }

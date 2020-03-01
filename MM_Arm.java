@@ -15,6 +15,7 @@ public class MM_Arm {
     private Servo wristServo = null;
     private DigitalChannel lowerBoundArm = null;
     private DigitalChannel upperBoundArm = null;
+    private DigitalChannel haveBlockArm = null;
 
     private int targetArm = 0;
 
@@ -33,6 +34,7 @@ public class MM_Arm {
         wristServo = opMode.hardwareMap.get(Servo.class, "wristServo");
         lowerBoundArm = opMode.hardwareMap.get(DigitalChannel.class, "lowerArm");
         upperBoundArm = opMode.hardwareMap.get(DigitalChannel.class, "upperArm");
+        haveBlockArm = opMode.hardwareMap.get(DigitalChannel.class, "haveBlockArm");
 
         armMotor.setDirection(DcMotor.Direction.FORWARD);
         armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);

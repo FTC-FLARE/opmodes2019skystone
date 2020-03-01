@@ -1,11 +1,9 @@
 package org.firstinspires.ftc.teamcode.opmodes2019skystone;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.vuforia.CameraDevice;
 
 import org.firstinspires.ftc.robotcore.external.matrices.OpenGLMatrix;
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 import static android.os.SystemClock.sleep;
 
@@ -49,7 +47,7 @@ public class MM_Robot {
     }
 
     //use the gyro and look for target
-    public void turnToSee(double angle, double speed){
+    public void turnToSee(double angle, double speed) {
         drivetrain.runWithEncoder();
         double error = angle - drivetrain.getAngle();
         double power;
@@ -102,8 +100,61 @@ public class MM_Robot {
     public void alignToSkystone(){
         position = vuforia.getDistanceToSkyStone();
         drivetrain.gyroTurn(1,-90);
-        double xError = position.getTranslation().get(0) + toMM(1);
-        drivetrain.driveWithInches(toInches(xError),.25);
+        vuforiaGyroDrive(-.5,-90,.1);
+        drivetrain.setMotorPowersSame(0);
+    }
+
+//        double xError = position.getTranslation().get(0) + toMM(2);
+//        while (opMode.opModeIsActive() && Math.abs(xError) > 1){
+//            position = vuforia.getDistanceToSkyStone();
+//            xError = position.getTranslation().get(0) - toMM(1);
+//            if(xError > 0){
+//                drivetrain.setMotorPowersSame(-.075);
+//            }else{
+//                drivetrain.setMotorPowersSame(.075);
+//            }
+//            opMode.telemetry.addData("x distance", toInches(position.getTranslation().get(0)));
+//            opMode.telemetry.addData("x error", toInches(xError));
+//            opMode.telemetry.update();
+//        }
+
+
+    public void vuforiaGyroDrive(double inches, double angle, double speed){
+        double angleError = 0;
+        double driveError = toMM(inches) - position.getTranslation().get(0);
+        double driveSpeed = speed;
+
+        position = vuforia.getDistanceToSkyStone();
+
+        while (opMode.opModeIsActive() && Math.abs(driveError) > 1){
+            position = vuforia.getDistanceToSkyStone();
+            angleError = drivetrain.correctError(angle - drivetrain.getAngle());
+            driveError = toMM(inches) - position.getTranslation().get(0);
+            double power = drivetrain.gyroDriveControl(angleError,speed,.005,1);
+            if (driveError < 0){
+                driveSpeed = -speed;
+            }else{
+                driveSpeed = speed;
+            }
+            if (angleError < 0){
+                power = -power;
+            }
+            drivetrain.setMotorPowers(driveSpeed-power,driveSpeed+power);
+            opMode.telemetry.addData("drive error", toInches(driveError));
+            opMode.telemetry.addData("x position", toInches(position.getTranslation().get(0)));
+            opMode.telemetry.update();
+        }
+        drivetrain.setMotorPowersSame(0);
+    }
+
+    public void rangeGyroDrive(double inches, double angle, double speed){
+        double angleError = 0;
+        double driveError = Math.abs(inches - drivetrain.getBackRange());
+
+        while(opMode.opModeIsActive() && driveError > 1){
+            angleError = drivetrain.correctError(angle - drivetrain.getAngle());
+            driveError = Math.abs(inches - drivetrain.getBackRange());
+        }
     }
 
     private boolean isTargetSeen(boolean targetSeen) {
@@ -241,38 +292,57 @@ public class MM_Robot {
     }
 
     public void autoCollect(){
-        double range = 0;
-        opMode.resetStartTime();
-        while(opMode.opModeIsActive() && opMode.getRuntime() < 1){
-            collector.getCollectorDistance();
-            opMode.telemetry.addData("distance:", collector.getCollectorDistance());
-            opMode.telemetry.update();
-        }
+        double error = 0;
+        drivetrain.resetEncoder();
         arm.autoArm(-1000);
         collector.powerFlywheels(-1);
-        drivetrain.setMotorPowersSame(.3);
-        while(opMode.opModeIsActive() && collector.getCollectorDistance() > 8){
-            range = collector.getCollectorDistance();
+        drivetrain.setMotorPowersSame(.5);
+        while(opMode.opModeIsActive() && collector.getCollectorDistance() > 8 && drivetrain.currentPosition() < 60){
+            if(drivetrain.currentPosition() < 2){
+                drivetrain.setMotorPowersSame(.1);
+            }else {
+                error = drivetrain.correctError(0 - drivetrain.getAngle());
+                double power = drivetrain.exponentialControl(error, .5, .005, 1);
+                if (error < 0) {
+                    power = -power;
+                }
+                drivetrain.setMotorPowers(.5 - power, .5 + power);
+            }
         }
         drivetrain.setMotorPowersSame(0);
         consistentCollect();
         collector.powerFlywheels(0);
-        while (opMode.opModeIsActive()){
-            opMode.telemetry.addData("current range",collector.getCollectorDistance());
-            opMode.telemetry.addData("stopping range", range);
-            opMode.telemetry.update();
+    }
+
+    public void teleOpAutoCollect(){
+        if(opMode.gamepad1.x) {
+            opMode.resetStartTime();
+            arm.autoArm(-1000);
+            collector.powerFlywheels(-1);
+            while (collector.getCollectorDistance() > 8) {
+                drivetrain.driveWithSticks();
+            }
+            consistentCollect();
+            collector.powerFlywheels(0);
         }
     }
+
 
     public void consistentCollect() {
         if(collector.getCollectorDistance() < 2.6){
             collector.autoAlignStone();
         }else{
+            collector.powerFlywheels(0);
+            opMode.resetStartTime();
+            while (opMode.opModeIsActive() && opMode.getRuntime() < 1){
+            }
             collector.powerFlywheels(1);
-            sleep(250);
+            opMode.resetStartTime();
+            while (opMode.opModeIsActive() && opMode.getRuntime() < .25){
+            }
             collector.powerFlywheels(-1);
             opMode.resetStartTime();
-            while (opMode.opModeIsActive() && opMode.getRuntime() <.5){
+            while (opMode.opModeIsActive() && opMode.getRuntime() < .5){
             }
             consistentCollect();
         }
