@@ -34,6 +34,7 @@ public class MM_TeleOp extends LinearOpMode {
         robot.arm.toggleGripper();
         robot.arm.rotateGripperWrist();
         robot.arm.armMove();
+        robot.arm.deployCapstone();
     }
 
     public void controlCollector(){

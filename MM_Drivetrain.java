@@ -5,6 +5,7 @@ import android.view.Display;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cRangeSensor;
 import com.qualcomm.hardware.rev.Rev2mDistanceSensor;
+import com.qualcomm.hardware.rev.RevTouchSensor;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -55,6 +56,8 @@ public class MM_Drivetrain {
     private ModernRoboticsI2cRangeSensor leftRange;
     private ModernRoboticsI2cRangeSensor rightRange;
     private ModernRoboticsI2cRangeSensor backRange;
+    private RevTouchSensor leftTouch;
+    private RevTouchSensor rightTouch;
 
     public MM_Drivetrain(LinearOpMode opMode) {
         this.opMode = opMode;
@@ -78,6 +81,8 @@ public class MM_Drivetrain {
         leftRange = opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class,"leftRange");
         rightRange = opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class,"rightRange");
         backRange = opMode.hardwareMap.get(ModernRoboticsI2cRangeSensor.class, "backRange");
+        leftTouch = opMode.hardwareMap.get(RevTouchSensor.class, "leftTouch");
+        rightTouch = opMode.hardwareMap.get(RevTouchSensor.class, "rightTouch");
 
         //init servo
         foundationServo = opMode.hardwareMap.get(Servo.class, "foundationServo");
@@ -92,6 +97,20 @@ public class MM_Drivetrain {
     public void unbrake(){
         LMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
         RMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+    }
+
+    public void driveToTouch(double power){
+        while(opMode.opModeIsActive() && (!leftTouch.isPressed() || !rightTouch.isPressed())){
+            double LPower = power;
+            double RPower = power;
+            if (leftTouch.isPressed()){
+                LPower = 0;
+            }
+            if(rightTouch.isPressed()){
+                RPower = 0;
+            }
+            setMotorPowers(LPower,RPower);
+        }
     }
 
     public void gyroTurnPID(double speed, double angle) {
@@ -163,8 +182,12 @@ public class MM_Drivetrain {
 
     public double exponentialControl(double error, double speed, double coeff, int exponent){
         double power = speed * (Math.pow((Math.abs(error)*coeff),exponent));
-        if (power < MINIMUM_POWER){
-            power = MINIMUM_POWER;
+        if (Math.abs(power) < MINIMUM_POWER){
+            if (power < 0){
+                power = -MINIMUM_POWER;
+            }else {
+                power = MINIMUM_POWER;
+            }
         }
         return power;
     }
@@ -281,8 +304,10 @@ public class MM_Drivetrain {
         double error = 0;
         double driveError = 0;
         double driveSpeed = speed;
+        int newLeftTarget = 0;
+        int newRightTarget = 0;
 
-        runWithEncoder();
+        setMotorTargets(inches);
 
         while (opMode.opModeIsActive() && Math.abs(currentPosition()) < Math.abs(inches)){
             error = correctError(angle - getAngle());
@@ -309,6 +334,18 @@ public class MM_Drivetrain {
         RMotor.setPower(0);
     }
 
+    public void setMotorTargets(double inches) {
+        int newLeftTarget;
+        int newRightTarget;
+
+        runWithEncoder();
+        runToPosition();
+
+        newLeftTarget = LMotor.getCurrentPosition() + (int) (inches * TICKS_PER_INCH);
+        newRightTarget = RMotor.getCurrentPosition() + (int) (inches * TICKS_PER_INCH);
+        LMotor.setTargetPosition(newLeftTarget);
+        RMotor.setTargetPosition(newRightTarget);
+    }
 
 
     public void setMotorPowersSame(double power){

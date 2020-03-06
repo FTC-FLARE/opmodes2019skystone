@@ -58,7 +58,7 @@ public class MM_Vuforia {
                 .multiplied(Orientation.getRotationMatrix(EXTRINSIC, XYZ, DEGREES, -90, 0, 180));
 
         ((VuforiaTrackableDefaultListener) stoneTarget.getListener()).setPhoneInformation(robotFromCamera, parameters.cameraDirection);
-        CameraDevice.getInstance().setField("zoom", "55"); // used to be 50
+        CameraDevice.getInstance().setField("zoom", "35"); // used to be 50
     }
 
     public void activateTarget(){
